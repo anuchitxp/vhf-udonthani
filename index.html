@@ -7,285 +7,110 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'Sarabun', sans-serif;
-    background: #ffffff;
-    color: #1a1a2e;
-    -webkit-text-size-adjust: 100%;
-  }
-
-  .page {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 32px 20px 48px;
-  }
-
-  /* Hero */
+  body { font-family: 'Sarabun', sans-serif; background: #ffffff; color: #1a1a2e; -webkit-text-size-adjust: 100%; }
+  .page { max-width: 680px; margin: 0 auto; padding: 32px 20px 48px; }
   .hero { text-align: center; margin-bottom: 32px; }
-
-  .badge {
-    display: inline-block;
-    background: #EBF4FF;
-    color: #1D5FA6;
-    font-size: 12px;
-    font-weight: 600;
-    padding: 5px 14px;
-    border-radius: 20px;
-    border: 1px solid #B8D6F5;
-    margin-bottom: 14px;
-    letter-spacing: 0.02em;
-    line-height: 1.5;
-  }
-
-  .hero-title {
-    font-size: clamp(22px, 6vw, 30px);
-    font-weight: 700;
-    color: #0D2B55;
-    line-height: 1.35;
-    margin-bottom: 10px;
-  }
+  .badge { display: inline-block; background: #EBF4FF; color: #1D5FA6; font-size: 12px; font-weight: 600; padding: 5px 14px; border-radius: 20px; border: 1px solid #B8D6F5; margin-bottom: 14px; letter-spacing: 0.02em; line-height: 1.5; }
+  .hero-title { font-size: clamp(22px, 6vw, 30px); font-weight: 700; color: #0D2B55; line-height: 1.35; margin-bottom: 10px; }
   .hero-title span { color: #1A73E8; }
-
-  .hero-sub {
-    font-size: clamp(13px, 3.5vw, 15px);
-    color: #4A6FA5;
-    font-weight: 500;
-    line-height: 1.5;
-  }
-
-  .divider {
-    height: 1px;
-    background: #E8EEF6;
-    margin: 24px 0;
-  }
-
-  .section-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    color: #8FA3BF;
-    text-transform: uppercase;
-    margin-bottom: 14px;
-  }
-
-  /* Why cards — stack on mobile, 3-col on wide */
-  .cards {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    margin-bottom: 28px;
-  }
-
-  @media (min-width: 480px) {
-    .cards { grid-template-columns: repeat(3, 1fr); }
-  }
-
-  .card {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    background: #F7FAFF;
-    border: 1px solid #D6E5F7;
-    border-radius: 14px;
-    padding: 16px;
-  }
-
-  @media (min-width: 480px) {
-    .card { flex-direction: column; gap: 0; }
-    .card-icon { margin-bottom: 12px; }
-  }
-
-  .card-icon {
-    width: 40px; height: 40px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-
+  .hero-sub { font-size: clamp(13px, 3.5vw, 15px); color: #4A6FA5; font-weight: 500; line-height: 1.5; }
+  .divider { height: 1px; background: #E8EEF6; margin: 24px 0; }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #8FA3BF; text-transform: uppercase; margin-bottom: 14px; }
+  .cards { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 28px; }
+  @media (min-width: 480px) { .cards { grid-template-columns: repeat(3, 1fr); } }
+  .card { display: flex; align-items: flex-start; gap: 14px; background: #F7FAFF; border: 1px solid #D6E5F7; border-radius: 14px; padding: 16px; }
+  @media (min-width: 480px) { .card { flex-direction: column; gap: 0; } .card-icon { margin-bottom: 12px; } }
+  .card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .card-body { flex: 1; }
-
-  .card-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: #0D2B55;
-    margin-bottom: 3px;
-    line-height: 1.3;
-  }
-
-  .card-desc {
-    font-size: 12px;
-    color: #5B7A9D;
-    line-height: 1.6;
-  }
-
-  /* Steps */
+  .card-title { font-size: 14px; font-weight: 700; color: #0D2B55; margin-bottom: 3px; line-height: 1.3; }
+  .card-desc { font-size: 12px; color: #5B7A9D; line-height: 1.6; }
   .steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
-
-  .step {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    background: #F9FBFF;
-    border: 1px solid #E2EDF8;
-    border-radius: 12px;
-    padding: 16px;
-  }
-
-  .step-num {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    background: #1A73E8;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-  }
-
-  .step-title {
-    font-size: clamp(13px, 3.5vw, 14px);
-    font-weight: 700;
-    color: #0D2B55;
-    margin-bottom: 4px;
-    line-height: 1.3;
-  }
-
-  .step-desc {
-    font-size: 12px;
-    color: #5B7A9D;
-    line-height: 1.6;
-  }
-
-  /* Outcomes — 1-col mobile, 3-col wide */
-  .outcome-bar {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    margin-bottom: 28px;
-  }
-
-  @media (min-width: 420px) {
-    .outcome-bar { grid-template-columns: repeat(3, 1fr); }
-  }
-
-  .outcome {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px 18px;
-    border-radius: 12px;
-    border: 1px solid transparent;
-  }
-
-  @media (min-width: 420px) {
-    .outcome {
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      padding: 18px 12px;
-    }
-  }
-
-  .outcome-num {
-    font-size: clamp(22px, 6vw, 28px);
-    font-weight: 700;
-    line-height: 1;
-    flex-shrink: 0;
-  }
-
-  .outcome-label {
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 1.4;
-  }
-
-  @media (min-width: 420px) {
-    .outcome-label { text-align: center; font-size: 12px; }
-  }
-
+  .step { display: flex; align-items: flex-start; gap: 14px; background: #F9FBFF; border: 1px solid #E2EDF8; border-radius: 12px; padding: 16px; }
+  .step-num { width: 32px; height: 32px; border-radius: 50%; background: #1A73E8; color: #fff; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-title { font-size: clamp(13px, 3.5vw, 14px); font-weight: 700; color: #0D2B55; margin-bottom: 4px; line-height: 1.3; }
+  .step-desc { font-size: 12px; color: #5B7A9D; line-height: 1.6; }
+  .outcome-bar { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 28px; }
+  @media (min-width: 420px) { .outcome-bar { grid-template-columns: repeat(3, 1fr); } }
+  .outcome { display: flex; align-items: center; gap: 16px; padding: 16px 18px; border-radius: 12px; border: 1px solid transparent; }
+  @media (min-width: 420px) { .outcome { flex-direction: column; align-items: center; gap: 6px; padding: 18px 12px; } }
+  .outcome-num { font-size: clamp(22px, 6vw, 28px); font-weight: 700; line-height: 1; flex-shrink: 0; }
+  .outcome-label { font-size: 13px; font-weight: 500; line-height: 1.4; }
+  @media (min-width: 420px) { .outcome-label { text-align: center; font-size: 12px; } }
   .o-blue  { background: #EBF3FF; border-color: #C0D8F5; }
   .o-blue .outcome-num   { color: #1558B0; }
   .o-blue .outcome-label { color: #3A72B8; }
-
   .o-teal  { background: #E8F7F2; border-color: #A8DFC8; }
   .o-teal .outcome-num   { color: #0A6648; }
   .o-teal .outcome-label { color: #1D8A62; }
-
   .o-amber { background: #FEF6E8; border-color: #F5D99A; }
   .o-amber .outcome-num   { color: #7B4A08; }
   .o-amber .outcome-label { color: #A06210; }
 
-  /* CTA */
+  /* CTA — stack always, row only on wide screens */
   .cta {
     background: #0D2B55;
     border-radius: 14px;
-    padding: 22px 20px;
+    padding: 24px 24px 20px;
     display: flex;
     flex-direction: column;
-    align-items: stretch;
     gap: 16px;
-    text-align: center;
   }
-
-  @media (min-width: 480px) {
-    .cta {
-      flex-direction: row;
-      align-items: center;
-      text-align: left;
-    }
-    .cta-text { flex: 1; }
-    .cta-btn { flex-shrink: 0; }
-  }
-
   .cta-title {
-    font-size: clamp(15px, 4vw, 16px);
+    font-size: 17px;
     font-weight: 700;
     color: #EBF3FF;
-    margin-bottom: 5px;
+    margin-bottom: 6px;
+    line-height: 1.4;
   }
-
   .cta-sub {
     font-size: 13px;
     color: #7AAEE0;
-    line-height: 1.5;
+    line-height: 1.6;
   }
-
   .cta-btn {
     display: block;
     width: 100%;
     background: #1A73E8;
     color: #fff;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
     font-family: 'Sarabun', sans-serif;
-    padding: 13px 24px;
+    padding: 14px 24px;
     border-radius: 10px;
     border: none;
     cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    line-height: 1.4;
     min-height: 48px;
   }
+  .cta-btn:active { background: #1558B0; }
 
-  @media (min-width: 480px) {
-    .cta-btn { width: auto; font-size: 13px; padding: 10px 22px; min-height: auto; }
+  /* On wider screens: side by side */
+  @media (min-width: 520px) {
+    .cta {
+      flex-direction: row;
+      align-items: center;
+      padding: 24px 28px;
+    }
+    .cta-text { flex: 1; min-width: 0; }
+    .cta-btn {
+      width: auto;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-size: 14px;
+      padding: 12px 24px;
+    }
   }
 
-  .cta-btn:active { background: #1558B0; transform: scale(0.98); }
-
-  .footnote {
-    text-align: center;
-    font-size: 11px;
-    color: #AAB8CC;
-    margin-top: 24px;
-    line-height: 1.6;
-  }
+  .footnote { text-align: center; font-size: 11px; color: #AAB8CC; margin-top: 24px; line-height: 1.6; }
 </style>
 </head>
 <body>
 <div class="page">
 
   <div class="hero">
-    <div class="badge">เครือข่ายดูแลผู้ป่วยหัวใจล้มเหลว · One HF</div>
+    <div class="badge">เครือข่ายดูแลผู้ป่วยหัวใจล้มเหลว · One HF </div>
     <div class="hero-title">เข้าร่วม <span>Virtual-HF</span><br>ดูแลผู้ป่วยหัวใจล้มเหลวด้วยกัน</div>
     <div class="hero-sub">Cardiologist ให้คำปรึกษาออนไลน์<br>ตลอด 24 ชั่วโมง</div>
   </div>
@@ -340,14 +165,14 @@
       <div class="step-num">1</div>
       <div>
         <div class="step-title">รับผู้ป่วย HF เข้า ward</div>
-        <div class="step-desc">แพทย์/พยาบาลที่ รพช. เปิดเตียงว่างในระบบ กด admit — ใช้เวลาไม่ถึง 2 นาที</div>
+        <div class="step-desc">แพทย์/พยาบาล เปิดเตียงว่างในระบบ กด admit — ไม่ต้องส่งเอกสารซ้ำ</div>
       </div>
     </div>
     <div class="step">
       <div class="step-num">2</div>
       <div>
         <div class="step-title">อัปโหลด Echo / ECG / CXR</div>
-        <div class="step-desc">ส่ง CXR, ECG, คลิป echo ผ่าน Quick Echo จากมือถือหรือ tablet</div>
+        <div class="step-desc">ส่งคลิป echo และภาพทางการแพทย์ผ่าน Quick Echo จากมือถือหรือ tablet</div>
       </div>
     </div>
     <div class="step">
@@ -361,7 +186,7 @@
       <div class="step-num">4</div>
       <div>
         <div class="step-title">จำหน่ายและสรุปเคส</div>
-        <div class="step-desc">บันทึก discharge ในระบบ เก็บข้อมูลสำหรับ audit และติดตามผลระยะยาว</div>
+        <div class="step-desc">บันทึก discharge ในระบบ เก็บข้อมูลสำหรับ audit และ ICD 10 เพิ่ม AjRW</div>
       </div>
     </div>
   </div>
@@ -384,15 +209,16 @@
     </div>
   </div>
 
+  <!-- CTA: text block + button stacked, side-by-side on wide screens -->
   <div class="cta">
     <div class="cta-text">
       <div class="cta-title">พร้อมเข้าร่วมโครงการ?</div>
       <div class="cta-sub">ติดต่อทีมงาน Virtual-HF เพื่อเปิดใช้งานสำหรับโรงพยาบาลของท่าน</div>
     </div>
-    <button class="cta-btn">สมัครเลย</button>
+    <a href="https://virtual-hf.web.app" target="_blank" rel="noopener noreferrer" class="cta-btn">สมัครเลย →</a>
   </div>
 
-  <div class="footnote">Virtual-HF · Heart Failure Network<br>ระบบดูแลผู้ป่วยหัวใจล้มเหลว One HF</div>
+  <div class="footnote">Virtual-HF · Heart Failure Network<br>🩺Improving Patient Care ❤️ Driven by Passion<br>© 2025 Developed by Dr. Anuchit Wongphen</div>
 
 </div>
 </body>
