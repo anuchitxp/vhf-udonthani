@@ -250,9 +250,75 @@
   }
   .print-btn:hover { background: #185FA5; }
   @media print { .print-btn { display: none !important; } }
+
+/* ========== SITE NAV (Virtual-HF Network) ========== */
+.vhf-nav {
+  position: sticky; top: 0; z-index: 200;
+  background: #0D2B55;
+  box-shadow: 0 2px 8px rgba(13,43,85,0.35);
+  font-family: 'Sarabun', sans-serif;
+}
+.vhf-nav-inner {
+  max-width: 960px; margin: 0 auto;
+  display: flex; align-items: center;
+  padding: 0 20px; height: 52px; gap: 8px;
+}
+.vhf-brand {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; flex-shrink: 0;
+}
+.vhf-brand-icon {
+  width: 28px; height: 28px; background: #1A73E8; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.vhf-brand-text { font-size: 14px; font-weight: 700; color: #fff; line-height: 1.2; }
+.vhf-brand-sub  { font-size: 10px; color: rgba(255,255,255,0.55); font-weight: 400; }
+.vhf-links { display: flex; list-style: none; gap: 2px; margin-left: auto; }
+.vhf-links a {
+  display: block; color: rgba(255,255,255,0.7); text-decoration: none;
+  font-size: 13px; font-weight: 500; padding: 6px 10px; border-radius: 5px;
+  transition: background 0.15s, color 0.15s; white-space: nowrap;
+}
+.vhf-links a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.vhf-links a.active { background: #1A73E8; color: #fff; }
+.vhf-toggle {
+  display: none; background: none; border: none;
+  color: white; font-size: 20px; cursor: pointer; padding: 4px 8px; margin-left: auto;
+}
+@media (max-width: 600px) {
+  .vhf-toggle { display: block; }
+  .vhf-links {
+    display: none; position: absolute; top: 52px; left: 0; right: 0;
+    background: #0D2B55; flex-direction: column;
+    padding: 8px 16px 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .vhf-links.open { display: flex; }
+  .vhf-links a { padding: 10px 12px; font-size: 14px; }
+}
+/* ========== END SITE NAV ========== */
 </style>
 </head>
 <body>
+<!-- ===== SITE NAV ===== -->
+<nav class="vhf-nav">
+  <div class="vhf-nav-inner">
+    <a href="index.html" class="vhf-brand">
+      <div class="vhf-brand-icon">🫀</div>
+      <div>
+        <div class="vhf-brand-text">Virtual-HF</div>
+        <div class="vhf-brand-sub">HF Network · จ.อุดรธานี</div>
+      </div>
+    </a>
+    <button class="vhf-toggle" onclick="this.nextElementSibling.classList.toggle('open')">☰</button>
+    <ul class="vhf-links">
+      <li><a href="index.html">🏠 Virtual-HF</a></li>
+      <li><a href="hfref_standing_order-spokes.html" class="active">📋 Standing Order</a></li>
+      <li><a href="refer-back-hf-udon.html">🏥 Refer-Back Protocol</a></li>
+    </ul>
+  </div>
+</nav>
 <div class="page">
 
   <button class="print-btn no-print" onclick="window.print()">
