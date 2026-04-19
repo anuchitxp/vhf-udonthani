@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="แนวทางการโอนย้ายผู้ป่วยภาวะหัวใจล้มเหลวกลับโรงพยาบาลชุมชนในจังหวัดอุดรธานี แบบผู้ป่วยใน (IPD) — โรงพยาบาลอุดรธานี">
+<title>HF IPD Refer-Back Protocol — รพ.อุดรธานี</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ====================================================
+   DESIGN: Clinical reference — authoritative & clean
+   Palette: Deep navy + teal accent, warm white bg
+   Fonts: Sarabun (Thai clinical standard)
+   ==================================================== */
+:root {
+  --navy:        #0D2B45;
+  --navy-mid:    #1A4F7A;
+  --navy-light:  #2980B9;
+  --teal:        #0E7490;
+  --teal-light:  #CFFAFE;
+  --teal-pale:   #F0FDFF;
+  --green:       #166534;
+  --green-mid:   #16A34A;
+  --green-light: #DCFCE7;
+  --red:         #991B1B;
+  --red-mid:     #DC2626;
+  --red-light:   #FEE2E2;
+  --amber:       #92400E;
+  --amber-mid:   #D97706;
+  --amber-light: #FEF3C7;
+  --slate:       #334155;
+  --slate-mid:   #64748B;
+  --slate-light: #F1F5F9;
+  --border:      #CBD5E1;
+  --white:       #FFFFFF;
+  --bg:          #F8FAFC;
+  --text:        #1E293B;
+  --text-muted:  #64748B;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Sarabun', 'IBM Plex Sans Thai', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+/* ========================
+   TOP NAV
+   ======================== */
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--navy);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+}
+.topnav-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 52px;
+  gap: 16px;
+}
+.topnav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  text-decoration: none;
+}
+.topnav-brand .heart-icon {
+  width: 28px;
+  height: 28px;
+  background: var(--teal);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.topnav-brand .brand-text {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: white;
+}
+.topnav-brand .brand-sub {
+  font-size: 10.5px;
+  opacity: 0.65;
+  font-weight: 400;
+}
+.nav-links {
+  display: flex;
+  gap: 4px;
+  list-style: none;
+}
+.nav-links a {
+  color: rgba(255,255,255,0.75);
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.nav-links a:hover {
+  color: white;
+  background: rgba(255,255,255,0.12);
+}
+.nav-version {
+  font-size: 10.5px;
+  color: rgba(255,255,255,0.5);
+  white-space: nowrap;
+}
+
+/* ========================
+   HERO
+   ======================== */
+.hero {
+  background: linear-gradient(135deg, var(--navy) 0%, #1A3A5C 50%, var(--teal) 100%);
+  padding: 56px 24px 48px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(14,116,144,0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(41,128,185,0.2) 0%, transparent 40%);
+  pointer-events: none;
+}
+.hero-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  position: relative;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.9);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.hero h1 {
+  font-size: clamp(22px, 4vw, 32px);
+  font-weight: 700;
+  color: white;
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+.hero h1 span { color: #67E8F9; }
+.hero-subtitle {
+  font-size: clamp(14px, 2.5vw, 17px);
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 28px;
+}
+.hero-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.pill {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 14px;
+  border-radius: 20px;
+}
+.pill .pill-icon { margin-right: 4px; }
+
+/* ========================
+   LAYOUT
+   ======================== */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.content-area {
+  padding: 40px 0 64px;
+}
+
+/* ========================
+   SECTION HEADERS
+   ======================== */
+.sec-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--border);
+}
+.sec-num {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+  background: var(--navy-mid);
+}
+.sec-num.green  { background: var(--green-mid); }
+.sec-num.red    { background: var(--red-mid); }
+.sec-num.amber  { background: var(--amber-mid); }
+.sec-num.teal   { background: var(--teal); }
+.sec-header h2 {
+  font-size: clamp(16px, 2.5vw, 19px);
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.3;
+}
+.sec-header h2 .en {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--slate-mid);
+  display: block;
+}
+
+/* Section spacing */
+section { margin-bottom: 52px; }
+
+/* ========================
+   CARDS / BOXES
+   ======================== */
+.card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.card-header {
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-header.green  { background: var(--green-light); color: var(--green); border-bottom: 1px solid #BBF7D0; }
+.card-header.red    { background: var(--red-light);   color: var(--red);   border-bottom: 1px solid #FECACA; }
+.card-header.amber  { background: var(--amber-light); color: var(--amber); border-bottom: 1px solid #FDE68A; }
+.card-header.navy   { background: var(--navy);        color: white; }
+.card-header.teal   { background: var(--teal);        color: white; }
+.card-header.slate  { background: var(--slate-light); color: var(--slate); border-bottom: 1px solid var(--border); }
+
+/* ========================
+   TABLES
+   ======================== */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.data-table th {
+  background: var(--navy);
+  color: white;
+  padding: 8px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.data-table th.green { background: var(--green); }
+.data-table th.red   { background: var(--red); }
+.data-table th.amber { background: var(--amber); }
+.data-table th.teal  { background: var(--teal); }
+
+.data-table td {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.55;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:nth-child(even) td { background: var(--slate-light); }
+.data-table td:first-child {
+  font-weight: 600;
+  font-size: 12.5px;
+  white-space: nowrap;
+  color: var(--navy-mid);
+}
+.data-table.red   td:first-child { color: var(--red); }
+.data-table.green td:first-child { color: var(--green); }
+.data-table.amber td:first-child { color: var(--amber); }
+.data-table.teal  td:first-child { color: var(--teal); }
+
+/* ========================
+   ALERT BANNERS
+   ======================== */
+.alert {
+  display: flex;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.alert .alert-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.alert strong { display: block; margin-bottom: 2px; font-size: 14px; }
+.alert.red    { background: var(--red-light);   border-left: 4px solid var(--red-mid);  color: var(--red); }
+.alert.amber  { background: var(--amber-light); border-left: 4px solid var(--amber-mid); color: var(--amber); }
+.alert.green  { background: var(--green-light); border-left: 4px solid var(--green-mid); color: var(--green); }
+.alert.teal   { background: var(--teal-light);  border-left: 4px solid var(--teal);      color: var(--teal); }
+.alert.navy   { background: #EFF6FF; border-left: 4px solid var(--navy-mid); color: var(--navy); }
+
+/* ========================
+   BULLET LISTS
+   ======================== */
+.list-items { list-style: none; padding: 0; }
+.list-items li {
+  display: flex;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13.5px;
+  align-items: flex-start;
+  line-height: 1.55;
+}
+.list-items li:last-child { border-bottom: none; }
+.list-items li::before {
+  content: '▸';
+  color: var(--teal);
+  font-size: 12px;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+.list-items.red    li::before { color: var(--red-mid); }
+.list-items.amber  li::before { color: var(--amber-mid); }
+.list-items.green  li::before { color: var(--green-mid); }
+
+/* ========================
+   GRID LAYOUTS
+   ======================== */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media (max-width: 640px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+
+/* ========================
+   STAT / KPI CARDS
+   ======================== */
+.stat-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.stat-card .stat-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--slate-mid);
+  margin-bottom: 6px;
+}
+.stat-card .stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.2;
+}
+.stat-card .stat-sub {
+  font-size: 12px;
+  color: var(--slate-mid);
+  margin-top: 4px;
+}
+.stat-card .stat-bar {
+  height: 4px;
+  border-radius: 2px;
+  margin-top: 10px;
+  background: var(--slate-light);
+  overflow: hidden;
+}
+.stat-card .stat-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--teal);
+}
+
+/* ========================
+   GDMT TABLE SPECIAL
+   ======================== */
+.gdmt-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.gdmt-table th {
+  background: var(--navy);
+  color: white;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+}
+.gdmt-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.55;
+}
+.gdmt-table tr:last-child td { border-bottom: none; }
+.gdmt-table tr:nth-child(even) td { background: var(--slate-light); }
+.drug-name { font-weight: 600; color: var(--navy-mid); }
+.drug-names { font-size: 12px; color: var(--slate-mid); }
+.target-badge {
+  display: inline-block;
+  background: var(--teal-light);
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid #A5F3FC;
+}
+.note-text { font-size: 12px; color: var(--slate-mid); font-style: italic; }
+
+/* ========================
+   EMERGENCY SECTION
+   ======================== */
+.emerg-header {
+  background: var(--red);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.urgent-header {
+  background: var(--amber-mid);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 8px 8px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 20px;
+}
+
+/* ========================
+   KPI TABLE
+   ======================== */
+.kpi-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.kpi-table th {
+  background: var(--green);
+  color: white;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+}
+.kpi-table td {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.kpi-table tr:last-child td { border-bottom: none; }
+.kpi-table tr:nth-child(even) td { background: var(--slate-light); }
+.kpi-target { font-weight: 700; color: var(--green); font-size: 13px; }
+.kpi-freq {
+  display: inline-block;
+  background: var(--slate-light);
+  color: var(--slate-mid);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* ========================
+   QUICK REF CALLOUT
+   ======================== */
+.quick-ref {
+  background: var(--navy);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.quick-ref-header {
+  padding: 14px 22px;
+  background: var(--teal);
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.quick-ref-body {
+  padding: 20px 22px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 600px) { .quick-ref-body { grid-template-columns: 1fr; } }
+.qr-section h4 {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #67E8F9;
+  margin-bottom: 10px;
+}
+.qr-list { list-style: none; }
+.qr-list li {
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.85);
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  line-height: 1.5;
+}
+.qr-list li:last-child { border-bottom: none; }
+.qr-list li::before {
+  content: '·';
+  color: #67E8F9;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+.qr-list.red li::before { color: #FCA5A5; }
+
+/* ========================
+   CONTACT CARD
+   ======================== */
+.contact-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.contact-card-header {
+  background: var(--navy);
+  color: white;
+  padding: 12px 20px;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.contact-card-body {
+  padding: 18px 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 500px) { .contact-card-body { grid-template-columns: 1fr; } }
+.contact-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.contact-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.contact-icon.phone { background: #DBEAFE; }
+.contact-icon.line  { background: #DCFCE7; }
+.contact-info .contact-type { font-size: 11px; font-weight: 700; color: var(--slate-mid); text-transform: uppercase; letter-spacing: 0.5px; }
+.contact-info .contact-name { font-size: 14px; font-weight: 700; color: var(--navy); margin-top: 1px; }
+.contact-info .contact-note { font-size: 12px; color: var(--slate-mid); margin-top: 2px; }
+
+/* ========================
+   INLINE TAGS
+   ======================== */
+.tag {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+.tag.must   { background: var(--red-light);   color: var(--red); }
+.tag.cond   { background: var(--amber-light); color: var(--amber); }
+.tag.note   { background: var(--teal-light);  color: var(--teal); }
+.tag.new    { background: #EDE9FE; color: #6D28D9; }
+
+/* ========================
+   TOC
+   ======================== */
+.toc {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 36px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.toc h3 {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--slate-mid);
+  margin-bottom: 14px;
+}
+.toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 24px; }
+@media (max-width: 560px) { .toc-grid { grid-template-columns: 1fr; } }
+.toc-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text);
+  font-size: 13.5px;
+  transition: color 0.15s;
+}
+.toc-item:hover { color: var(--teal); }
+.toc-item:last-child { border-bottom: none; }
+.toc-num {
+  width: 22px;
+  height: 22px;
+  background: var(--navy-mid);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ========================
+   FOOTER
+   ======================== */
+footer {
+  background: var(--navy);
+  color: rgba(255,255,255,0.65);
+  padding: 32px 24px;
+  text-align: center;
+  font-size: 12.5px;
+  line-height: 1.8;
+}
+footer strong { color: white; }
+
+/* ========================
+   MOBILE NAV TOGGLE
+   ======================== */
+.nav-toggle { display: none; background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
+@media (max-width: 700px) {
+  .nav-links { display: none; }
+  .nav-links.open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 52px;
+    left: 0;
+    right: 0;
+    background: var(--navy);
+    padding: 8px 16px 16px;
+    gap: 2px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  }
+  .nav-toggle { display: block; }
+  .nav-version { display: none; }
+}
+
+/* ========================
+   UTILITIES
+   ======================== */
+.mb-4  { margin-bottom: 4px; }
+.mb-8  { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-20 { margin-bottom: 20px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+.text-muted { color: var(--text-muted); font-size: 13px; }
+strong { font-weight: 700; }
+em { font-style: italic; }
+
+/* Animation */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-inner { animation: fadeUp 0.6s ease both; }
+.toc        { animation: fadeUp 0.5s 0.1s ease both; }
+</style>
+</head>
+<body>
+
+<!-- ===== TOP NAV ===== -->
+<nav class="topnav">
+  <div class="topnav-inner">
+    <a href="#" class="topnav-brand">
+      <div class="heart-icon">🫀</div>
+      <div>
+        <div class="brand-text">HF IPD Refer-Back Protocol</div>
+        <div class="brand-sub">โรงพยาบาลอุดรธานี · จังหวัดอุดรธานี</div>
+      </div>
+    </a>
+    <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
+    <ul class="nav-links">
+      <li><a href="#s1">ที่มา</a></li>
+      <li><a href="#s2">เกณฑ์</a></li>
+      <li><a href="#s3">Care Plan</a></li>
+      <li><a href="#s4">ปรึกษา/ส่งกลับ</a></li>
+      <li><a href="#s5">KPI</a></li>
+      <li><a href="#quickref">Quick Ref</a></li>
+    </ul>
+    <div class="nav-version">v1.0 · เม.ย. 2569</div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">🏥 Heart Failure Network · จังหวัดอุดรธานี</div>
+    <h1>แนวทางการส่งต่อผู้ป่วย<span>ภาวะหัวใจล้มเหลว</span><br>กลับโรงพยาบาลชุมชนแบบผู้ป่วยใน</h1>
+    <p class="hero-subtitle">Heart Failure IPD Refer-Back Protocol · โรงพยาบาลอุดรธานี</p>
+    <div class="hero-pills">
+      <div class="pill"><span class="pill-icon">📋</span>ใช้เฉพาะ จ.อุดรธานี</div>
+      <div class="pill"><span class="pill-icon">🏨</span>สถานะผู้ป่วยใน (IPD)</div>
+      <div class="pill"><span class="pill-icon">💊</span>LVEF &lt; 50%</div>
+      <div class="pill"><span class="pill-icon">⚗️</span>K⁺ 4.0–5.5 mEq/L</div>
+      <div class="pill"><span class="pill-icon">📅</span>ปรับปรุง 20 เมษายน 2569</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="container">
+<div class="content-area">
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>สารบัญ</h3>
+    <div class="toc-grid">
+      <a href="#s1" class="toc-item"><span class="toc-num">1</span> ที่มาและเหตุผล</a>
+      <a href="#s2" class="toc-item"><span class="toc-num">2</span> เกณฑ์การโอนย้าย IPD</a>
+      <a href="#s3" class="toc-item"><span class="toc-num">3</span> IPD Care Plan ที่ รพช.</a>
+      <a href="#s4" class="toc-item"><span class="toc-num">4</span> เกณฑ์ปรึกษา / ส่งกลับ</a>
+      <a href="#s5" class="toc-item"><span class="toc-num">5</span> ตัวชี้วัดคุณภาพ</a>
+      <a href="#quickref" class="toc-item"><span class="toc-num">★</span> Quick Reference</a>
+    </div>
+  </div>
+
+  <!-- ===========================
+       SECTION 1: BACKGROUND
+       =========================== -->
+  <section id="s1">
+    <div class="sec-header">
+      <div class="sec-num">1</div>
+      <h2>ที่มาและเหตุผล <span class="en">Background &amp; Rationale</span></h2>
+    </div>
+
+    <p class="mb-16" style="font-size:14px;line-height:1.75;color:var(--slate);">
+      ภาวะหัวใจล้มเหลว (Heart Failure) เป็นโรคเรื้อรังที่ต้องการการดูแลต่อเนื่องในโรงพยาบาล ผู้ป่วยที่รับการรักษาเบื้องต้นที่โรงพยาบาลอุดรธานีและมีอาการคงที่ในระดับหนึ่ง สามารถโอนย้ายไปรับการดูแลต่อในฐานะ <strong>ผู้ป่วยใน (IPD)</strong> ที่โรงพยาบาลชุมชน (รพช.) ในจังหวัดอุดรธานีได้อย่างปลอดภัย ผู้ป่วยยังอยู่ในสถานะ IPD — <strong>ไม่ใช่การจำหน่ายออกมาดูแลแบบ OPD</strong> แนวทางนี้ใช้เฉพาะโรงพยาบาลชุมชนในจังหวัดอุดรธานีเท่านั้น
+    </p>
+
+    <div class="grid-2 mb-20">
+      <div>
+        <div class="card-header slate" style="background:var(--slate-light);color:var(--slate);border-bottom:1px solid var(--border);padding:10px 16px;font-size:13px;font-weight:700;border-radius:8px 8px 0 0;">🔴 ปัญหาที่ต้องการแก้ไข</div>
+        <div class="card" style="border-radius:0 0 8px 8px;margin:0;">
+          <ul class="list-items" style="padding:12px 16px;">
+            <li>ความแออัดของเตียง IPD ที่ รพ.อุดรธานี — LOS เฉลี่ย 5–8 วัน, Readmit ภายใน 30 วันสูงถึง 20–30%</li>
+            <li>ค่าใช้จ่ายแฝงของผู้ป่วยและญาติ — เดินทางเยี่ยม ค่าที่พัก ต้นทุนสูง</li>
+            <li>ศักยภาพ รพช. ในจังหวัดยังไม่ถูกใช้เต็มที่ — หากมีแนวทางและช่องทางปรึกษา</li>
+            <li>การสื่อสารระหว่างระดับไม่ต่อเนื่อง — ขาดช่องทางปรึกษา Cardiologist โดยตรง</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="card-header teal" style="padding:10px 16px;font-size:13px;font-weight:700;border-radius:8px 8px 0 0;">✅ หลักการสำคัญ</div>
+        <div class="card" style="border-radius:0 0 8px 8px;margin:0;">
+          <ul class="list-items" style="padding:12px 16px;">
+            <li><strong>Continuity of Care</strong> — ผู้ป่วยยังอยู่ใน IPD ได้รับการดูแลระดับโรงพยาบาล</li>
+            <li><strong>Clinical Partnership</strong> — ปรึกษา Cardiologist ได้โดยตรงผ่านโทรศัพท์/Line ตลอดเวลา</li>
+            <li><strong>แผนชัดเจน</strong> — Transfer Summary + IPD Care Plan + เป้าหมายก่อน Discharge</li>
+            <li><strong>วัดผลได้</strong> — KPI ชัดเจน ลด LOS และผลการรักษาที่ รพช.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Objective pills -->
+    <div class="grid-3">
+      <div class="stat-card" style="border-top:3px solid var(--teal);">
+        <div class="stat-label">เป้าหมาย 1</div>
+        <div class="stat-value" style="font-size:16px;color:var(--teal);">ลดความแออัด</div>
+        <div class="stat-sub">เตียงผู้ป่วยใน รพ.อุดรธานี</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:70%"></div></div>
+      </div>
+      <div class="stat-card" style="border-top:3px solid var(--green-mid);">
+        <div class="stat-label">เป้าหมาย 2</div>
+        <div class="stat-value" style="font-size:16px;color:var(--green);">เสริมศักยภาพ</div>
+        <div class="stat-sub">เครือข่าย รพช. จ.อุดรธานี</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:60%;background:var(--green-mid)"></div></div>
+      </div>
+      <div class="stat-card" style="border-top:3px solid var(--amber-mid);">
+        <div class="stat-label">เป้าหมาย 3</div>
+        <div class="stat-value" style="font-size:16px;color:var(--amber);">ลดค่าใช้จ่าย</div>
+        <div class="stat-sub">ค่าใช้จ่ายแฝงผู้ป่วย/ครอบครัว</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="width:55%;background:var(--amber-mid)"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================
+       SECTION 2: CRITERIA
+       =========================== -->
+  <section id="s2">
+    <div class="sec-header">
+      <div class="sec-num green">2</div>
+      <h2>เกณฑ์การโอนย้ายผู้ป่วย IPD กลับ รพช. <span class="en">IPD Transfer Criteria</span></h2>
+    </div>
+
+    <!-- 2.1 Inclusion -->
+    <div class="card mb-20">
+      <div class="card-header green">✅ 2.1 เกณฑ์คัดเข้า (Inclusion Criteria) — ต้องมีครบทุกข้อ</div>
+      <div style="overflow-x:auto;">
+        <table class="data-table green">
+          <thead>
+            <tr>
+              <th style="width:140px;">ด้าน</th>
+              <th>เกณฑ์</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>LVEF / ประเภท HF</td><td>HF with <strong>LVEF &lt; 50%</strong> (HFrEF หรือ HFmrEF) ที่ได้รับการวินิจฉัยและ Echo ยืนยันแล้ว</td></tr>
+            <tr><td>NYHA Class</td><td>NYHA Class <strong>II–III ที่กำลังดีขึ้น</strong> และไม่อยู่ในภาวะ Acute Decompensation</td></tr>
+            <tr><td>Hemodynamic</td><td>SBP ≥ 90 mmHg, HR &lt; 100 bpm ขณะพัก, <strong>ไม่ต้องการ IV Inotrope หรือ Vasopressor</strong></td></tr>
+            <tr><td>Volume Status</td><td>ไม่มี Acute Pulmonary Edema, Peripheral Edema <strong>≤ 2+ และกำลังดีขึ้น</strong>, SpO₂ ≥ 92% on RA หรือ Low-flow O₂</td></tr>
+            <tr><td>Renal Function</td><td>Creatinine Stable <strong>≤ 2.5 mg/dL</strong> และไม่เพิ่มขึ้น > 0.5 ใน 48 ชั่วโมงล่าสุด</td></tr>
+            <tr><td>Electrolytes</td><td><strong>K⁺ 4.0–5.5 mEq/L</strong> &nbsp;|&nbsp; Na⁺ <strong>≥ 130 mEq/L</strong></td></tr>
+            <tr><td>GDMT</td><td>เริ่มยา GDMT <strong>อย่างน้อย 1 กลุ่ม</strong> และ Tolerate ดี ≥ 24 ชั่วโมง โดยไม่มี Symptomatic Hypotension</td></tr>
+            <tr><td>IV Diuretic</td><td>ไม่ต้องการ IV Furosemide Continuous หรือ Bolus <strong>> 2 ครั้ง/วัน</strong> (สามารถเปลี่ยนเป็น Oral Diuretic ได้)</td></tr>
+            <tr><td>Monitoring</td><td>ไม่ต้องการ <strong>Continuous Cardiac Monitor (Telemetry)</strong> หรือ Invasive Hemodynamic Monitoring</td></tr>
+            <tr><td>อุปกรณ์ (ถ้ามี)</td><td>ไม่มีแผน Device Therapy (ICD/CRT) ภายใน 4 สัปดาห์ หรือ Device ติดตั้งแล้วและเสถียร</td></tr>
+            <tr><td>สถานที่</td><td>โรงพยาบาลชุมชน<strong>ในจังหวัดอุดรธานี</strong>ที่ยืนยันมีเตียง IPD รองรับ</td></tr>
+            <tr><td>ความยินยอม</td><td>ผู้ป่วยและครอบครัวรับทราบและยินยอมโอนย้าย IPD ไปดูแลต่อที่ รพช.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2.2 Exclusion -->
+    <div class="card mb-20">
+      <div class="card-header red">🚫 2.2 เกณฑ์คัดออก (Exclusion Criteria) — ห้ามส่งหากมีข้อใดข้อหนึ่ง</div>
+      <div style="overflow-x:auto;">
+        <table class="data-table red">
+          <thead>
+            <tr>
+              <th style="width:180px;">เกณฑ์</th>
+              <th>รายละเอียด</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Hemodynamic Unstable</td><td>SBP &lt; 90 mmHg, Cardiogenic Shock, ยังต้องการ IV Inotrope หรือ Vasopressor</td></tr>
+            <tr><td>IV Diuretic Dependent</td><td>ยังต้องการ IV Furosemide > 2 ครั้ง/วัน หรือ Continuous Infusion เพื่อควบคุม Volume</td></tr>
+            <tr><td>Telemetry Needed</td><td>ต้องการ Continuous Cardiac Monitor เนื่องจาก Significant Arrhythmia หรือ High-risk EKG</td></tr>
+            <tr><td>Arrhythmia</td><td>Uncontrolled AF (HR > 110), Sustained VT/VF, New AV Block ≥ 2nd degree ที่ยังไม่ได้รับการจัดการ</td></tr>
+            <tr><td>Acute Coronary Syndrome</td><td>Recent ACS ภายใน 4 สัปดาห์ ที่ยังไม่ได้รับการ Revascularization หรืออาการยังไม่คงที่</td></tr>
+            <tr><td>Severe Valvular Disease</td><td>Severe AS/MR ที่ยังไม่ได้รับการประเมิน Intervention และเป็นสาเหตุของ Decompensation</td></tr>
+            <tr><td>Renal Crisis</td><td>Cr เพิ่ม > 0.5 mg/dL ใน 24 ชั่วโมงล่าสุด, AKI Stage ≥ 2, หรือ Oliguria &lt; 0.5 mL/kg/hr</td></tr>
+            <tr><td>Electrolyte ผิดปกติ</td><td>K⁺ &lt; 4.0 หรือ > 5.5 mEq/L ที่ยังไม่ได้รับการแก้ไข, Na⁺ &lt; 130 mEq/L</td></tr>
+            <tr><td>Device Pending Urgent</td><td>รอ ICD/CRT ภายใน 4 สัปดาห์</td></tr>
+            <tr><td>Advanced HF</td><td>NYHA Class IV, Refractory HF, พิจารณา Palliative Care หรือ Advanced Therapy</td></tr>
+            <tr><td>Comorbidity Severe</td><td>Sepsis active, Hepatic Encephalopathy, หรือ Condition ที่ต้องการ ICU-level monitoring</td></tr>
+            <tr><td>รพช. ไม่พร้อม</td><td>ไม่มีเตียง IPD ว่าง หรือไม่มีแพทย์รับผิดชอบดูแลต่อเนื่อง</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2.3 Transfer Package -->
+    <div class="card">
+      <div class="card-header amber">📦 2.3 ชุดเอกสารโอนย้าย IPD (Transfer Package) — ต้องครบทุกรายการก่อนส่งตัว</div>
+      <div style="padding:16px;">
+        <div class="grid-2">
+          <ul class="list-items amber" style="padding:0;">
+            <li><strong>Transfer Summary (ฉบับ IPD)</strong><span class="tag must">บังคับ</span><br><span class="text-muted">วินิจฉัย, LVEF ล่าสุด, Etiology, ยาปัจจุบัน + Dose, Target GDMT dose แต่ละตัว</span></li>
+            <li><strong>IPD Care Plan ที่ รพช.</strong><span class="tag must">บังคับ</span><br><span class="text-muted">เป้าหมาย GDMT Titration, LAB Targets, Volume Status Target</span></li>
+            <li><strong>LAB ล่าสุด</strong><span class="tag must">บังคับ</span><br><span class="text-muted">Cr, K, Na, Mg, Glucose, CBC</span></li>
+            <li><strong>EKG ล่าสุด</strong><span class="tag must">บังคับ</span><br><span class="text-muted">แนบ strip ต้นฉบับ</span></li>
+            <li><strong>CXR ล่าสุด</strong><span class="tag must">บังคับ</span><br><span class="text-muted">Film หรือ Digital image</span></li>
+          </ul>
+          <ul class="list-items amber" style="padding:0;">
+            <li><strong>Echo Report</strong><span class="tag must">บังคับ</span><br><span class="text-muted">ที่มี LVEF ล่าสุด</span></li>
+            <li><strong>NT-proBNP / BNP</strong><span class="tag cond">ถ้ามี</span><br><span class="text-muted">ค่า Baseline สำหรับเทียบในภายหลัง</span></li>
+            <li><strong>Warning Signs สำหรับ รพช.</strong><span class="tag must">บังคับ</span><br><span class="text-muted">เกณฑ์โทรปรึกษาหรือส่งกลับ รพ.อุดรธานี ทันที</span></li>
+            <li><strong>Contact Card</strong><span class="tag must">บังคับ</span><br><span class="text-muted">เบอร์โทร Cardiologist + Line UD Heart Center</span></li>
+            <li><strong>กำหนด Callback</strong><span class="tag must">บังคับ</span><br><span class="text-muted">นัด Cardiologist โทรติดตามใน 48–72 ชั่วโมงหลังโอนย้าย</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================
+       SECTION 3: CARE PLAN
+       =========================== -->
+  <section id="s3">
+    <div class="sec-header">
+      <div class="sec-num teal">3</div>
+      <h2>กิจกรรมและแผนการรักษาในฐานะ IPD ที่ รพช. <span class="en">IPD Care Plan at Community Hospital</span></h2>
+    </div>
+
+    <div class="alert navy mb-20">
+      <span class="alert-icon">ℹ️</span>
+      <div>แพทย์ รพช. เป็นผู้ดูแลหลัก มี Cardiologist จาก รพ.อุดรธานี เป็น Backup ปรึกษาได้ตลอดเวลา เป้าหมายคือ <strong>ปรับยา GDMT ให้ได้ Target dose, ควบคุม Volume Status, Monitor LAB และเตรียม Discharge กลับบ้าน</strong></div>
+    </div>
+
+    <!-- 3.1 GDMT -->
+    <h3 style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:12px;padding-left:10px;border-left:3px solid var(--teal);">3.1 เป้าหมายการรักษา GDMT ระหว่าง IPD ที่ รพช.</h3>
+    <div class="card mb-20">
+      <div style="overflow-x:auto;">
+        <table class="gdmt-table">
+          <thead>
+            <tr>
+              <th style="width:130px;">กลุ่มยา</th>
+              <th style="width:200px;">ยาที่ใช้</th>
+              <th style="width:160px;">เป้าหมาย/เงื่อนไข</th>
+              <th>หมายเหตุ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="drug-name">Beta-Blocker</div></td>
+              <td><div class="drug-names">Carvedilol, Bisoprolol</div></td>
+              <td><span class="target-badge">HR 55–70 bpm</span></td>
+              <td class="note-text">เพิ่มขนาดทีละ 1–2 สัปดาห์ ถ้า BP ≥ 90/60 และ HR ≥ 55</td>
+            </tr>
+            <tr>
+              <td><div class="drug-name">ACEI/ARB/ARNI</div></td>
+              <td><div class="drug-names">Enalapril, Losartan, Sacubitril-Valsartan</div></td>
+              <td><span class="target-badge">Max tolerated dose</span></td>
+              <td class="note-text">Monitor Cr, K ทุกครั้งที่ขึ้นยา</td>
+            </tr>
+            <tr>
+              <td><div class="drug-name">MRA</div></td>
+              <td><div class="drug-names">Spironolactone 25–50 mg</div></td>
+              <td><span class="target-badge">K⁺ 4.0–5.0 · Cr &lt; 2.5</span></td>
+              <td class="note-text">ระวัง Hyperkalemia — ตรวจ K⁺ ใน 2–3 วันหลังเริ่มยา</td>
+            </tr>
+            <tr>
+              <td><div class="drug-name">SGLT2i</div></td>
+              <td><div class="drug-names">Dapagliflozin / Empagliflozin 10 mg</div></td>
+              <td><span class="target-badge">eGFR ≥ 20 mL/min/1.73m²</span></td>
+              <td class="note-text">ลด HHF ได้ 25–30% — ควรเริ่มทุกรายที่ไม่มีข้อห้าม</td>
+            </tr>
+            <tr>
+              <td><div class="drug-name">Diuretics</div></td>
+              <td><div class="drug-names">Furosemide (Oral) ปรับตาม Weight</div></td>
+              <td><span class="target-badge">Dry weight ± 1 kg</span></td>
+              <td class="note-text">Flexible dosing ตาม Weight Chart รายวัน</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3.2 LAB -->
+    <h3 style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:12px;padding-left:10px;border-left:3px solid var(--teal);">3.2 ตารางติดตาม LAB ระหว่าง IPD ที่ รพช.</h3>
+    <div class="card mb-20">
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width:180px;">ช่วงเวลา</th>
+              <th style="width:240px;">รายการ LAB</th>
+              <th>เป้าหมาย / หมายเหตุ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>วันที่ 1–2 หลังโอนย้าย</td><td>Cr, K, Na, <strong>Mg</strong>, Glucose, CBC</td><td>ตรวจเมื่อแรกรับ เป็น Baseline ที่ รพช.</td></tr>
+            <tr><td>หลังปรับยา GDMT ทุกครั้ง</td><td>Cr, K ภายใน 48–72 ชั่วโมง</td><td><strong>บังคับ</strong>ทุกครั้งที่ขึ้นยา ACEI/ARB/ARNI, MRA หรือเพิ่ม Diuretics</td></tr>
+            <tr><td>ทุก 3–5 วัน ขณะ IPD</td><td>Cr, K, น้ำหนักตัว, Fluid Balance</td><td>ประเมิน Volume Status และ Renal Response ต่อ Diuretics</td></tr>
+            <tr><td>ก่อน Discharge จาก รพช.</td><td>Cr, Na, K, CBC, EKG, CXR</td><td>ยืนยัน: K⁺ 4.0–5.5 · Cr Stable · Volume OK</td></tr>
+            <tr><td>1 เดือนหลัง Discharge (OPD)</td><td>Cr, Na, K, CBC, HbA1c (ถ้า DM), LDL</td><td>First OPD Follow-up หลัง Discharge กลับบ้าน</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3.3 Daily Activities -->
+    <h3 style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:12px;padding-left:10px;border-left:3px solid var(--teal);">3.3 กิจกรรม IPD รายวันที่ รพช.</h3>
+    <div class="grid-2 mb-20">
+      <div class="card" style="margin:0;">
+        <div class="card-header navy" style="font-size:12.5px;">📊 Daily Monitoring</div>
+        <ul class="list-items" style="padding:12px 16px;">
+          <li>ชั่งน้ำหนักทุกเช้า บันทึก Fluid Balance (I/O) เทียบ Dry Weight</li>
+          <li>วัด BP, HR, RR, SpO₂ อย่างน้อย 2 ครั้ง/วัน</li>
+          <li>ประเมิน JVD, Peripheral Edema, Pulmonary Crepitation ทุกวัน</li>
+          <li>บันทึก NYHA Class ทุกวัน เพื่อ Document ว่าดีขึ้น/แย่ลง</li>
+          <li>ปรับ Oral Furosemide ตาม Weight และ UO ตาม Care Plan</li>
+        </ul>
+      </div>
+      <div>
+        <div class="card" style="margin:0 0 12px;">
+          <div class="card-header navy" style="font-size:12.5px;">🩸 ควบคุม DM ขณะ IPD</div>
+          <ul class="list-items" style="padding:10px 14px;">
+            <li>Target HbA1c <strong>≤ 7%</strong></li>
+            <li>หลีกเลี่ยง TZD — เพิ่ม Fluid Retention</li>
+            <li>SGLT2i First-choice ใน HFrEF + DM</li>
+            <li>Metformin ปลอดภัยถ้า eGFR ≥ 30</li>
+          </ul>
+        </div>
+        <div class="card" style="margin:0;">
+          <div class="card-header navy" style="font-size:12.5px;">💊 ควบคุม HT ขณะ IPD</div>
+          <ul class="list-items" style="padding:10px 14px;">
+            <li>Target BP <strong>&lt; 130/80 mmHg</strong></li>
+            <li>ระวัง Hypotension เวลาขึ้น GDMT — วัด BP ท่ายืน-นอน</li>
+            <li>หลีกเลี่ยง CCB Non-DHP (Diltiazem, Verapamil)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cardiac Rehab -->
+    <div class="alert teal mb-20">
+      <span class="alert-icon">🏃</span>
+      <div>
+        <strong>Cardiac Rehabilitation ระยะ IPD ที่ รพช. (Phase 2)</strong>
+        เดินภายในวอร์ด 10–20 นาที/วัน RPE 11–13 | ห้ามออกกำลังกายถ้า SBP &gt; 180/&lt; 90, HR &gt; 100, SpO₂ &lt; 90%, Symptomatic Arrhythmia |
+        Self-care: Salt &lt; 2g Na/วัน, ชั่งน้ำหนักเองที่บ้าน, Medication Counseling ก่อน Discharge
+      </div>
+    </div>
+
+    <!-- 3.4 Discharge Criteria -->
+    <h3 style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:12px;padding-left:10px;border-left:3px solid var(--green-mid);">3.4 เกณฑ์ Discharge กลับบ้านจาก รพช. IPD</h3>
+    <div class="card">
+      <div class="card-header green">🏠 Discharge Criteria from Community Hospital IPD — ต้องผ่านครบทุกข้อ</div>
+      <div style="overflow-x:auto;">
+        <table class="data-table green">
+          <thead><tr><th style="width:130px;">ด้าน</th><th>เกณฑ์</th></tr></thead>
+          <tbody>
+            <tr><td>NYHA</td><td>NYHA Class <strong>I–II</strong> และอาการคงที่ ≥ 24 ชั่วโมงก่อน Discharge</td></tr>
+            <tr><td>Volume</td><td>Euvolemic: น้ำหนักใกล้ Dry Weight <strong>± 1 kg</strong>, Edema ≤ 1+, ไม่มี Orthopnea</td></tr>
+            <tr><td>Hemodynamic</td><td>SBP <strong>≥ 90 mmHg</strong>, HR &lt; 100 bpm ขณะพัก</td></tr>
+            <tr><td>SpO₂</td><td>SpO₂ <strong>≥ 92%</strong> on Room Air</td></tr>
+            <tr><td>K⁺</td><td><strong>K⁺ 4.0–5.5 mEq/L</strong> (ต้องอยู่ใน Range ก่อน Discharge)</td></tr>
+            <tr><td>Cr</td><td>Cr Stable หรือดีขึ้น ไม่เพิ่มขึ้น <strong>> 0.5 mg/dL</strong> ใน 48 ชั่วโมงล่าสุด</td></tr>
+            <tr><td>GDMT</td><td>ได้รับยา GDMT <strong>อย่างน้อย 3 กลุ่ม</strong> และ Tolerate ≥ 24 ชั่วโมง</td></tr>
+            <tr><td>Oral Diuretic</td><td>สามารถควบคุม Volume ด้วย <strong>Oral Furosemide</strong> เพียงอย่างเดียว</td></tr>
+            <tr><td>Education</td><td>ผู้ป่วยและครอบครัวเข้าใจสัญญาณเตือนและการดูแลตัวเองที่บ้าน</td></tr>
+            <tr><td>นัดหมาย</td><td>มีนัด OPD รพช. ภายใน <strong>7–14 วัน</strong> และ OPD รพ.อุดรธานี ภายใน <strong>1–3 เดือน</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================
+       SECTION 4: CONSULT / RE-TRANSFER
+       =========================== -->
+  <section id="s4">
+    <div class="sec-header">
+      <div class="sec-num red">4</div>
+      <h2>เกณฑ์การปรึกษาและส่งกลับ รพ.อุดรธานี <span class="en">Consult &amp; Re-transfer Criteria</span></h2>
+    </div>
+
+    <div class="alert navy mb-20">
+      <span class="alert-icon">📌</span>
+      <div>ผู้ป่วยยังอยู่ในสถานะ IPD ที่ รพช. หากพบสิ่งผิดปกติ แพทย์ รพช. สามารถ<strong>ปรึกษา Cardiologist ได้โดยตรงก่อน</strong>ตัดสินใจส่งกลับ รพ.อุดรธานี ทุกกรณี</div>
+    </div>
+
+    <!-- 4.1 Consult -->
+    <div class="card mb-20">
+      <div class="card-header teal">📞 4.1 การปรึกษา Cardiologist ผ่านโทรศัพท์ / Line (ยังไม่ต้องส่งตัว)</div>
+      <div class="alert teal" style="margin:12px 12px 0;border-radius:6px;">
+        <span class="alert-icon">📲</span>
+        <strong>ช่องทางปรึกษา:</strong> โทรศัพท์ รพ.อุดรธานี สายตรง Cardiologist &nbsp;|&nbsp; Line: <strong>UD Heart Center</strong>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table teal" style="margin-top:0;">
+          <thead><tr><th style="width:180px;">สถานการณ์</th><th>รายละเอียด / การดำเนินการ</th></tr></thead>
+          <tbody>
+            <tr><td>การปรับยา GDMT</td><td>ไม่แน่ใจในการขึ้น/ลดขนาดยา BB, ACEI/ARB/ARNI, MRA, SGLT2i — ปรึกษาก่อนปรับได้เลย</td></tr>
+            <tr><td>K⁺ สูงเล็กน้อย</td><td>K⁺ 5.0–5.5 mEq/L โดยไม่มีอาการและ EKG ปกติ — ขอคำแนะนำก่อนหยุดยา MRA/ACEI</td></tr>
+            <tr><td>K⁺ ต่ำเล็กน้อย</td><td>K⁺ 3.5–4.0 mEq/L — ปรึกษาเรื่องการเสริม KCl และการปรับ Diuretics</td></tr>
+            <tr><td>Creatinine เพิ่มขึ้น</td><td>Cr เพิ่ม 0.3–0.5 จาก Baseline ไม่มี Oliguria — ปรึกษาก่อนหยุด ACEI หรือลด Diuretics</td></tr>
+            <tr><td>Volume ยังไม่ดีพอ</td><td>Edema ไม่ลดลง หรือน้ำหนักไม่ลงตามเป้า — ขอ Advice ปรับ Furosemide dose/frequency</td></tr>
+            <tr><td>Arrhythmia ใหม่</td><td>New AF ที่ HR &lt; 110, Hemodynamic Stable — ปรึกษาก่อนเริ่ม Anticoagulation / Rate control</td></tr>
+            <tr><td>ไม่แน่ใจเกณฑ์ Discharge</td><td>ไม่แน่ใจว่าผู้ป่วยพร้อม Discharge จาก รพช. กลับบ้านได้หรือยัง — โทรปรึกษาได้เสมอ</td></tr>
+            <tr><td>คำถามทั่วไป</td><td>ข้อสงสัยใดๆ เกี่ยวกับการดูแล HF ขณะ IPD — ปรึกษาได้ตลอดเวลาราชการ</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 4.2 Emergency -->
+    <div class="mb-20">
+      <div class="emerg-header">🚨 EMERGENCY — ปรึกษาทันที พร้อมเตรียมส่งกลับ</div>
+      <div class="card" style="border-radius:0 0 10px 10px;border-top:none;">
+        <div style="overflow-x:auto;">
+          <table class="data-table red" style="margin:0;">
+            <thead><tr><th style="width:200px;">ภาวะ</th><th>รายละเอียด</th></tr></thead>
+            <tbody>
+              <tr><td>Hemodynamic Instability</td><td>SBP &lt; 90 mmHg ร่วมกับ Cold extremities, Altered consciousness, Oliguria</td></tr>
+              <tr><td>Acute Pulmonary Edema</td><td>หอบเหนื่อยรุนแรง, SpO₂ &lt; 90% ขณะให้ O₂, Orthopnea รุนแรง</td></tr>
+              <tr><td>Malignant Arrhythmia</td><td>VT/VF, Complete Heart Block, SVT ที่ HR &gt; 150 และ Hemodynamic Unstable</td></tr>
+              <tr><td>Hyperkalemia Severe</td><td>K⁺ &gt; 5.5 mEq/L ร่วมกับ EKG Changes หรือ K⁺ &gt; 6.0 mEq/L ไม่ว่ามี EKG changes หรือไม่</td></tr>
+              <tr><td>Hyponatremia Severe</td><td>Na⁺ &lt; 125 mEq/L หรือ Na⁺ ลดเร็ว &gt; 5 mEq/L ใน 24 ชั่วโมง</td></tr>
+              <tr><td>AKI Severe</td><td>Cr เพิ่ม &gt; 1.0 mg/dL จาก Baseline หรือ Oliguria &lt; 0.5 mL/kg/hr &gt; 6 ชั่วโมง</td></tr>
+              <tr><td>ACS Concurrent</td><td>Chest Pain + ST Changes ใหม่ — ส่งตาม STEMI/NSTEMI Protocol ของจังหวัด</td></tr>
+              <tr><td>Syncope / Presyncope</td><td>หมดสติหรือเกือบหมดสติโดยไม่ทราบสาเหตุชัดเจนในผู้ป่วย HFrEF</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="urgent-header">⚠️ URGENT — ปรึกษาก่อน เพื่อพิจารณาส่งกลับภายใน 12–24 ชั่วโมง</div>
+      <div class="card" style="border-radius:0 0 10px 10px;border-top:none;">
+        <div style="overflow-x:auto;">
+          <table class="data-table amber" style="margin:0;">
+            <thead><tr><th style="width:200px;">ภาวะ</th><th>รายละเอียด</th></tr></thead>
+            <tbody>
+              <tr><td>Clinical Deterioration</td><td>NYHA แย่ลง ≥ 1 Class ภายใน 24–48 ชั่วโมง หรือ Dyspnea เพิ่มขึ้นมากโดยไม่ทราบสาเหตุ</td></tr>
+              <tr><td>Volume ไม่ตอบสนอง</td><td>Oral Furosemide สูงสุดแล้ว แต่ Edema/น้ำหนักไม่ลดใน 48–72 ชั่วโมง — อาจต้องกลับมา IV</td></tr>
+              <tr><td>BNP/NT-proBNP เพิ่ม</td><td>เพิ่ม &gt; 2 เท่าจาก Baseline ขณะโอนย้าย ร่วมกับอาการแย่ลง</td></tr>
+              <tr><td>Arrhythmia ใหม่</td><td>New AF ที่ HR &gt; 110 หรือ Symptomatic, Frequent PVC ที่ไม่สามารถจัดการได้ที่ รพช.</td></tr>
+              <tr><td>K⁺ ผิดปกติต่อเนื่อง</td><td>K⁺ &lt; 4.0 หรือ &gt; 5.5 mEq/L ที่ไม่ตอบสนองต่อการจัดการขั้นต้น ≥ 2 การตรวจ</td></tr>
+              <tr><td>Renal Impairment</td><td>Cr เพิ่ม 0.5–1.0 mg/dL จาก Baseline ที่ รพช. หลังปรับยา</td></tr>
+              <tr><td>Infection + HF</td><td>Pneumonia หรือ Infection รุนแรงในผู้ป่วย HF ที่เสี่ยง Decompensation เร็ว</td></tr>
+              <tr><td>แพทย์ รพช. ไม่มั่นใจ</td><td>แพทย์ รพช. ไม่สบายใจในการดูแลต่อ สุ่มเสี่ยงฟ้องร้อง</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.3 Procedure -->
+    <div class="card">
+      <div class="card-header slate">📋 4.3 ขั้นตอนการส่งกลับ รพ.อุดรธานี</div>
+      <ul class="list-items" style="padding:12px 16px;">
+        <li>โทรแจ้ง Cardiology / เวรรับผิดชอบ รพ.อุดรธานี ก่อนทุกกรณี — <strong>ไม่ส่งแบบ Walk-in</strong></li>
+        <li>เตรียม Re-transfer Note: Vital Signs ล่าสุด, ยาปัจจุบัน, LAB ล่าสุดที่ รพช., เหตุผลที่ต้องส่งกลับ</li>
+        <li>แนบ EKG strip ล่าสุด (<strong>บังคับ</strong>กรณี Arrhythmia หรือ Syncope)</li>
+        <li>ให้การรักษาเบื้องต้นก่อนส่ง: IV Furosemide (APO), O₂ (SpO₂ ต่ำ), Calcium Gluconate (Hyperkalemia + EKG changes)</li>
+        <li>ประสาน EMS / Ambulance พร้อม Cardiac Monitor และ Defibrillator สำหรับ Unstable Patient</li>
+        <li>รายงานผลให้ Cardiologist ทราบ<strong>ภายใน 24 ชั่วโมง</strong>หลังส่งกลับ</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===========================
+       SECTION 5: KPI
+       =========================== -->
+  <section id="s5">
+    <div class="sec-header">
+      <div class="sec-num green">5</div>
+      <h2>การวัดผลลัพธ์และตัวชี้วัดคุณภาพ <span class="en">Performance Indicators</span></h2>
+    </div>
+
+    <!-- KPI table -->
+    <div class="card mb-20">
+      <div class="card-header green">📊 5.1 ตัวชี้วัดหลัก (Key Performance Indicators)</div>
+      <div style="overflow-x:auto;">
+        <table class="kpi-table">
+          <thead>
+            <tr>
+              <th>ตัวชี้วัด (KPI)</th>
+              <th style="width:200px;">เป้าหมาย</th>
+              <th style="width:160px;">วิธีวัด</th>
+              <th style="width:90px;">ความถี่</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>LOS ที่ รพ.อุดรธานี (HF)</td>
+              <td class="kpi-target">ลดลง ≥ 1.5 วัน จาก Baseline</td>
+              <td>HosXP LOS Report</td>
+              <td><span class="kpi-freq">รายเดือน</span></td>
+            </tr>
+            <tr>
+              <td>จำนวนผู้ป่วย Refer-Back IPD สำเร็จ</td>
+              <td class="kpi-target">≥ 10 ราย/เดือน (หลัง 3 เดือน)</td>
+              <td>HosXP Transfer Record</td>
+              <td><span class="kpi-freq">รายเดือน</span></td>
+            </tr>
+            <tr>
+              <td>Re-transfer กลับ รพ.อุดรธานี ≤ 48 ชม.</td>
+              <td class="kpi-target">&lt; 20% ของผู้ป่วยที่โอนไป</td>
+              <td>Transfer Record</td>
+              <td><span class="kpi-freq">รายเดือน</span></td>
+            </tr>
+            <tr>
+              <td>30-Day Readmission (จาก รพช.)</td>
+              <td class="kpi-target">&lt; 15%</td>
+              <td>HosXP / ข้อมูล Admit</td>
+              <td><span class="kpi-freq">รายเดือน</span></td>
+            </tr>
+            <tr>
+              <td>GDMT ≥ 3 กลุ่ม ขณะ Discharge จาก รพช.</td>
+              <td class="kpi-target">&gt; 80% ของผู้ป่วย</td>
+              <td>รีวิว Discharge Note</td>
+              <td><span class="kpi-freq">รายไตรมาส</span></td>
+            </tr>
+            <tr>
+              <td>K⁺ อยู่ใน Range 4.0–5.5 ก่อน Discharge</td>
+              <td class="kpi-target">&gt; 90% ของผู้ป่วย</td>
+              <td>LAB Record ที่ รพช.</td>
+              <td><span class="kpi-freq">รายไตรมาส</span></td>
+            </tr>
+            <tr>
+              <td>All-cause Mortality 30 วัน</td>
+              <td class="kpi-target">&lt; 5%</td>
+              <td>Death Record + HosXP</td>
+              <td><span class="kpi-freq">รายเดือน</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Monitoring process -->
+    <div class="grid-2">
+      <div class="card" style="margin:0;">
+        <div class="card-header slate">🏥 ระดับ รพช.</div>
+        <ul class="list-items" style="padding:12px 14px;font-size:13px;">
+          <li>บันทึก IPD Progress Note ทุกวัน — Volume, VS, LAB, ยา + Dose</li>
+          <li>รายงาน Cardiologist ทุก 3 วัน หรือทันทีเมื่อมีเหตุผิดปกติ</li>
+          <li>แจ้ง Re-transfer, Death, เหตุการณ์สำคัญ ภายใน 2 ชั่วโมง</li>
+          <li>ส่ง Discharge Summary กลับให้ รพ.อุดรธานี ทุกราย</li>
+        </ul>
+      </div>
+      <div class="card" style="margin:0;">
+        <div class="card-header navy">🫀 ระดับ รพ.อุดรธานี (Cardiology)</div>
+        <ul class="list-items" style="padding:12px 14px;font-size:13px;">
+          <li>Cardiologist โทร Callback ทุกรายภายใน 48–72 ชม.หลังโอนย้าย</li>
+          <li>Review Dashboard ข้อมูล HF IPD Refer-Back ทุก 2 สัปดาห์</li>
+          <li>Case Conference ร่วมกับ รพช. ทุก 3 เดือน (Video / On-site)</li>
+          <li>ส่ง Feedback Report คืน รพช. เรื่อง KPI ทุก 3 เดือน</li>
+          <li>Annual Review ปรับปรุงแนวทางตาม Evidence + Outcome Data</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================
+       QUICK REFERENCE
+       =========================== -->
+  <section id="quickref">
+    <div class="sec-header">
+      <div class="sec-num" style="background:var(--amber-mid);">★</div>
+      <h2>Quick Reference Summary <span class="en">สรุปย่อสำหรับแพทย์ รพช.</span></h2>
+    </div>
+
+    <div class="quick-ref">
+      <div class="quick-ref-header">⚡ HF IPD Refer-Back — At a Glance</div>
+      <div class="quick-ref-body">
+        <div class="qr-section">
+          <h4>เกณฑ์รับโอนย้าย IPD</h4>
+          <ul class="qr-list">
+            <li>LVEF &lt; 50% + NYHA II–III กำลังดีขึ้น</li>
+            <li>SBP ≥ 90, HR &lt; 100, ไม่ต้องการ Inotrope</li>
+            <li>K⁺ 4.0–5.5 · Cr ≤ 2.5 · Na ≥ 130</li>
+            <li>ไม่ต้องการ IV Diuretic &gt; 2 ครั้ง/วัน</li>
+            <li>ไม่ต้องการ Telemetry</li>
+            <li>เริ่ม GDMT ≥ 1 กลุ่ม Tolerate ≥ 24 ชม.</li>
+            <li>รพช. มีเตียง IPD ว่าง + แพทย์รับ</li>
+          </ul>
+        </div>
+        <div class="qr-section">
+          <h4>เกณฑ์ Discharge จาก รพช. กลับบ้าน</h4>
+          <ul class="qr-list">
+            <li>NYHA I–II คงที่ ≥ 24 ชม.</li>
+            <li>Euvolemic + SpO₂ ≥ 92% RA</li>
+            <li>K⁺ 4.0–5.5 + Cr Stable</li>
+            <li>ควบคุมได้ด้วย Oral Furosemide</li>
+            <li>GDMT ≥ 3 กลุ่ม + Education ครบ</li>
+            <li>นัด OPD รพช. ภายใน 7–14 วัน</li>
+          </ul>
+        </div>
+        <div class="qr-section">
+          <h4>LAB ขณะ IPD ที่ รพช.</h4>
+          <ul class="qr-list">
+            <li>วันที่ 1–2: Cr, K, Na, Mg, Glucose, CBC</li>
+            <li>หลังปรับ GDMT: Cr, K ใน 48–72 ชม.</li>
+            <li>ทุก 3–5 วัน: Cr, K, น้ำหนัก, I/O</li>
+            <li>ก่อน Discharge: Cr, K, Na, CBC, EKG, CXR</li>
+          </ul>
+        </div>
+        <div class="qr-section">
+          <h4>🚨 ส่งกลับทันที เมื่อพบ</h4>
+          <ul class="qr-list red">
+            <li>SBP &lt; 90 หรือ Shock signs</li>
+            <li>SpO₂ &lt; 90% on O₂ / APO</li>
+            <li>Malignant Arrhythmia / Syncope</li>
+            <li>K⁺ &gt; 5.5 + EKG changes หรือ K⁺ &gt; 6.0</li>
+            <li>Cr เพิ่ม &gt; 2.0 mg/dL จาก Baseline</li>
+            <li>Na⁺ &lt; 125 หรือลดเร็ว &gt; 5 ใน 24 ชม.</li>
+            <li>ACS: Chest pain + ST changes ใหม่</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="contact-card">
+      <div class="contact-card-header">📞 ช่องทางปรึกษา Cardiologist — UD Heart Center รพ.อุดรธานี</div>
+      <div class="contact-card-body">
+        <div class="contact-item">
+          <div class="contact-icon phone">📱</div>
+          <div class="contact-info">
+            <div class="contact-type">โทรศัพท์</div>
+            <div class="contact-name">Cardiologist รพ.อุดรธานี</div>
+            <div class="contact-note">24/7 สำหรับ Emergency</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon line">💬</div>
+          <div class="contact-info">
+            <div class="contact-type">Line</div>
+            <div class="contact-name">UD Heart Center</div>
+            <div class="contact-note">เวลาราชการสำหรับ Elective Consult</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- end content-area -->
+</div><!-- end container -->
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div style="max-width:720px;margin:0 auto;">
+    <div style="font-size:15px;font-weight:700;color:white;margin-bottom:8px;">🫀 HF IPD Refer-Back Protocol</div>
+    <div>จัดทำโดย <strong>กลุ่มงานอายุรกรรมโรคหัวใจและหลอดเลือด</strong> โรงพยาบาลอุดรธานี | จังหวัดอุดรธานี</div>
+    <div style="margin-top:6px;">เวอร์ชัน 1.0 — 20 เมษายน 2569 &nbsp;|&nbsp; ทบทวนทุก 1 ปี หรือเมื่อมีหลักฐานทางการแพทย์ใหม่ที่สำคัญ</div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.1);font-size:11px;color:rgba(255,255,255,0.4);">
+      แนวทางนี้ใช้เฉพาะโรงพยาบาลชุมชนในจังหวัดอุดรธานีเท่านั้น · ยังไม่ขยายระดับเขตสุขภาพที่ 8
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
