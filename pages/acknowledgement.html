@@ -99,13 +99,13 @@ body {
 }
 .hero-ornament {
   font-family: 'Cormorant Garamond', serif;
-  font-size: 13px;
+  font-size: clamp(10px, 2.5vw, 13px);
   font-weight: 500;
-  letter-spacing: 0.25em;
+  letter-spacing: clamp(0.08em, 1.5vw, 0.25em);
   text-transform: uppercase;
   color: var(--gold-light);
   opacity: 0.85;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   position: relative;
 }
 .hero-ornament::before,
@@ -116,7 +116,7 @@ body {
 }
 .hero-title {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(32px, 7vw, 54px);
+  font-size: clamp(26px, 5.5vw, 48px);
   font-weight: 700;
   color: #fff;
   line-height: 1.2;
@@ -124,8 +124,10 @@ body {
   position: relative;
 }
 .hero-title .gold { color: #F0C96A; }
+.mobile-br { display: none; }
+@media (max-width: 480px) { .mobile-br { display: block; } }
 .hero-sub {
-  font-size: clamp(14px, 3vw, 17px);
+  font-size: clamp(13px, 2.8vw, 16px);
   color: rgba(255,255,255,0.75);
   font-weight: 400;
   max-width: 600px;
@@ -443,13 +445,14 @@ body {
 <div class="hero">
   <div class="hero-ornament">Virtual-HF Heart Failure Network · จังหวัดอุดรธานี</div>
   <h1 class="hero-title">
-    ขอบคุณและ<span class="gold">เชิดชูเกียรติ</span><br>
-    ผู้ทุ่มเทเพื่อผู้ป่วยหัวใจล้มเหลว
+    ขอบคุณและ<br><span class="gold">เชิดชูเกียรติ</span><br>
+    ผู้ทุ่มเทเพื่อผู้ป่วย<br class="mobile-br">หัวใจล้มเหลว
   </h1>
   <p class="hero-sub">
-    โครงการ Virtual-HF สำเร็จได้ด้วยความร่วมมือ ความทุ่มเท<br>
-    และวิสัยทัศน์ของทุกท่านที่ร่วมสร้างเครือข่ายที่เป็นเลิศ  </p>
-  <div class="hero-badge">🌟 Acknowledgement · เขตสุขภาพที่ 8 · ปี พ.ศ. 2568</div>
+    โครงการ Virtual-HF สำเร็จได้ด้วยความร่วมมือ<br>
+    และวิสัยทัศน์ของทุกท่านในเครือข่ายนี้
+  </p>
+  <div class="hero-badge">🌟 Acknowledgement · เขตสุขภาพที่ 8 · 2569</div>
 </div>
 
 <!-- Wave SVG -->
@@ -563,7 +566,7 @@ body {
       <div class="clinical-badge">นายแพทย์ชำนาญการ</div>
       <div class="clinical-name">นพ.วิทย์ เหลืองวัฒนานนท์</div>
       <div class="clinical-title">อายุรแพทย์โรคหัวใจและหลอดเลือด</div>
-      <div class="clinical-role">Virtual Cardiology Consult · Quick Echo Review · ดูแลผู้ป่วย HF ระหว่าง IPD ััAdmission</div>
+      <div class="clinical-role">Virtual Cardiology Consult · Quick Echo Review · ดูแลผู้ป่วย HF ระหว่าง IPD Admission</div>
     </div>
 
     <div class="clinical-card">
