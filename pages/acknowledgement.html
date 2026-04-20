@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ขอบคุณและเชิดชูเกียรติ · Virtual-HF Network</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Cormorant+Garamond:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+:root {
+  --navy:        #0D2B55;
+  --navy-mid:    #1A4A7A;
+  --blue:        #1A73E8;
+  --blue-light:  #EBF4FF;
+  --gold:        #B8892A;
+  --gold-light:  #F5E6C8;
+  --gold-pale:   #FDF8EE;
+  --teal:        #0E7490;
+  --teal-light:  #CFFAFE;
+  --teal-pale:   #F0FDFF;
+  --slate:       #334155;
+  --slate-mid:   #64748B;
+  --slate-light: #F1F5F9;
+  --border:      #CBD5E1;
+  --white:       #FFFFFF;
+  --bg:          #F8FAFC;
+}
+
+body {
+  font-family: 'Sarabun', sans-serif;
+  background: var(--bg);
+  color: var(--navy);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+/* ========== SITE NAV ========== */
+.vhf-nav {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--navy);
+  box-shadow: 0 2px 8px rgba(13,43,85,0.35);
+}
+.vhf-nav-inner {
+  max-width: 960px; margin: 0 auto;
+  display: flex; align-items: center;
+  padding: 0 20px; height: 52px; gap: 8px;
+}
+.vhf-brand {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; flex-shrink: 0;
+}
+.vhf-brand-icon {
+  width: 28px; height: 28px; background: var(--blue); border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.vhf-brand-text { font-size: 14px; font-weight: 700; color: #fff; line-height: 1.2; }
+.vhf-brand-sub  { font-size: 10px; color: rgba(255,255,255,0.55); font-weight: 400; }
+.vhf-links { display: flex; list-style: none; gap: 2px; margin-left: auto; }
+.vhf-links a {
+  display: block; color: rgba(255,255,255,0.7); text-decoration: none;
+  font-size: 13px; font-weight: 500; padding: 6px 10px; border-radius: 5px;
+  transition: background 0.15s, color 0.15s; white-space: nowrap;
+}
+.vhf-links a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.vhf-links a.active { background: var(--blue); color: #fff; }
+.vhf-toggle {
+  display: none; background: none; border: none;
+  color: white; font-size: 20px; cursor: pointer; padding: 4px 8px; margin-left: auto;
+}
+@media (max-width: 600px) {
+  .vhf-toggle { display: block; }
+  .vhf-links {
+    display: none; position: absolute; top: 52px; left: 0; right: 0;
+    background: var(--navy); flex-direction: column;
+    padding: 8px 16px 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .vhf-links.open { display: flex; }
+  .vhf-links a { padding: 10px 12px; font-size: 14px; }
+}
+
+/* ========== HERO ========== */
+.hero {
+  background: linear-gradient(160deg, #0D2B55 0%, #1A4A7A 50%, #0E7490 100%);
+  padding: 64px 24px 80px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(184,137,42,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(26,115,232,0.15) 0%, transparent 50%);
+}
+.hero-ornament {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  opacity: 0.85;
+  margin-bottom: 20px;
+  position: relative;
+}
+.hero-ornament::before,
+.hero-ornament::after {
+  content: '—';
+  margin: 0 12px;
+  opacity: 0.6;
+}
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(32px, 7vw, 54px);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  position: relative;
+}
+.hero-title .gold { color: #F0C96A; }
+.hero-sub {
+  font-size: clamp(14px, 3vw, 17px);
+  color: rgba(255,255,255,0.75);
+  font-weight: 400;
+  max-width: 600px;
+  margin: 0 auto 28px;
+  line-height: 1.7;
+  position: relative;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(184,137,42,0.2);
+  border: 1px solid rgba(184,137,42,0.4);
+  color: #F0C96A;
+  font-size: 12px; font-weight: 600;
+  padding: 6px 16px; border-radius: 20px;
+  letter-spacing: 0.05em;
+  position: relative;
+}
+
+/* ========== WAVE DIVIDER ========== */
+.wave {
+  display: block;
+  background: var(--bg);
+  height: 48px;
+  margin-top: -1px;
+}
+
+/* ========== LAYOUT ========== */
+.page-body {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* ========== SECTION HEADER ========== */
+.section-head {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.section-tier {
+  display: inline-block;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--slate-mid);
+  margin-bottom: 10px;
+}
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(24px, 5vw, 34px);
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.25;
+  margin-bottom: 8px;
+}
+.section-rule {
+  width: 48px; height: 3px;
+  margin: 12px auto 0;
+  border-radius: 2px;
+}
+.rule-gold  { background: linear-gradient(90deg, var(--gold), #E8C050); }
+.rule-teal  { background: linear-gradient(90deg, var(--teal), #22D3EE); }
+.rule-blue  { background: linear-gradient(90deg, var(--blue), #60A5FA); }
+.rule-slate { background: linear-gradient(90deg, var(--slate), #94A3B8); }
+
+/* ========== LEADERSHIP CARDS (gold tier) ========== */
+.leadership-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-bottom: 64px;
+}
+.leader-card {
+  background: var(--white);
+  border: 1px solid rgba(184,137,42,0.25);
+  border-top: 3px solid var(--gold);
+  border-radius: 12px;
+  padding: 24px 22px 20px;
+  box-shadow: 0 2px 12px rgba(13,43,85,0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.leader-card::before {
+  content: '';
+  position: absolute; top: 0; right: 0;
+  width: 80px; height: 80px;
+  background: radial-gradient(circle at top right, rgba(184,137,42,0.08), transparent 70%);
+}
+.leader-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(13,43,85,0.12); }
+
+.leader-org {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--gold);
+  margin-bottom: 12px;
+}
+.leader-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold-light), #EDD9A3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  margin-bottom: 14px;
+  border: 2px solid rgba(184,137,42,0.3);
+}
+.leader-name {
+  font-size: 16px; font-weight: 700; color: var(--navy);
+  margin-bottom: 3px; line-height: 1.3;
+}
+.leader-title {
+  font-size: 13px; color: var(--slate-mid);
+  margin-bottom: 10px; line-height: 1.5;
+}
+.leader-role {
+  font-size: 12.5px; color: var(--slate);
+  line-height: 1.6;
+  padding-top: 10px;
+  border-top: 1px solid rgba(184,137,42,0.15);
+}
+
+/* ========== CLINICAL TEAM CARDS (teal tier) ========== */
+.clinical-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 64px;
+}
+.clinical-card {
+  background: var(--white);
+  border: 1px solid rgba(14,116,144,0.2);
+  border-top: 3px solid var(--teal);
+  border-radius: 10px;
+  padding: 20px 18px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 6px rgba(13,43,85,0.05);
+}
+.clinical-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(14,116,144,0.12); }
+.clinical-badge {
+  display: inline-block;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--teal); background: var(--teal-light);
+  padding: 2px 9px; border-radius: 10px;
+  margin-bottom: 12px;
+}
+.clinical-name {
+  font-size: 15px; font-weight: 700; color: var(--navy);
+  margin-bottom: 2px; line-height: 1.35;
+}
+.clinical-title {
+  font-size: 12.5px; color: var(--slate-mid); margin-bottom: 8px;
+}
+.clinical-role {
+  font-size: 12px; color: var(--slate); line-height: 1.65;
+}
+
+/* ========== TEAM GROUP (compact list) ========== */
+.team-group {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 64px;
+  box-shadow: 0 1px 6px rgba(13,43,85,0.04);
+}
+.team-group-header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  padding: 16px 24px;
+  display: flex; align-items: center; gap: 12px;
+}
+.team-group-icon {
+  font-size: 20px;
+  background: rgba(255,255,255,0.1);
+  width: 36px; height: 36px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.team-group-title { font-size: 15px; font-weight: 700; color: #fff; }
+.team-group-sub   { font-size: 11.5px; color: rgba(255,255,255,0.6); }
+.team-member {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--slate-light);
+  transition: background 0.15s;
+}
+.team-member:last-child { border-bottom: none; }
+.team-member:hover { background: var(--slate-light); }
+.team-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--blue);
+  margin-top: 8px; flex-shrink: 0;
+}
+.team-name { font-size: 14px; font-weight: 600; color: var(--navy); margin-bottom: 2px; }
+.team-pos  { font-size: 12px; color: var(--slate-mid); margin-bottom: 3px; }
+.team-desc { font-size: 12px; color: var(--slate); line-height: 1.6; }
+
+/* ========== ADVISOR SECTION ========== */
+.advisor-strip {
+  display: flex; flex-direction: column; gap: 12px;
+  margin-bottom: 64px;
+}
+.advisor-card {
+  display: flex; align-items: center; gap: 20px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--slate);
+  border-radius: 10px;
+  padding: 18px 22px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(13,43,85,0.04);
+}
+.advisor-card:hover { border-left-color: var(--navy); box-shadow: 0 4px 16px rgba(13,43,85,0.1); }
+.advisor-icon {
+  font-size: 22px; width: 44px; height: 44px;
+  background: var(--slate-light); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.advisor-name  { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+.advisor-title { font-size: 12.5px; color: var(--slate-mid); margin-bottom: 5px; }
+.advisor-role  { font-size: 12.5px; color: var(--slate); line-height: 1.6; }
+
+/* ========== CLOSING QUOTE ========== */
+.closing {
+  text-align: center;
+  padding: 48px 32px;
+  background: linear-gradient(135deg, var(--navy) 0%, #1A4A7A 100%);
+  border-radius: 16px;
+  position: relative; overflow: hidden;
+}
+.closing::before {
+  content: '"';
+  position: absolute; top: -20px; left: 24px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 180px; font-weight: 700;
+  color: rgba(255,255,255,0.04);
+  line-height: 1;
+}
+.closing-quote {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(20px, 4vw, 28px);
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.5;
+  max-width: 600px;
+  margin: 0 auto 20px;
+  position: relative;
+}
+.closing-quote .gold { color: #F0C96A; }
+.closing-attr {
+  font-size: 13px; color: rgba(255,255,255,0.55);
+  letter-spacing: 0.05em;
+}
+.closing-divider {
+  width: 40px; height: 1px;
+  background: rgba(240,201,106,0.4);
+  margin: 16px auto;
+}
+
+/* ========== SEPARATOR ========== */
+.sep {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 52px 0;
+}
+
+/* ========== FOOTER ========== */
+.footnote {
+  text-align: center; font-size: 11px;
+  color: var(--slate-mid); margin-top: 40px; line-height: 1.8;
+}
+
+/* ========== ANIMATIONS ========== */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero > * { animation: fadeUp 0.6s ease both; }
+.hero .hero-ornament { animation-delay: 0.1s; }
+.hero .hero-title    { animation-delay: 0.2s; }
+.hero .hero-sub      { animation-delay: 0.3s; }
+.hero .hero-badge    { animation-delay: 0.4s; }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 640px) {
+  .page-body { padding: 32px 16px 60px; }
+  .hero { padding: 48px 20px 64px; }
+  .leader-card, .clinical-card { padding: 18px 16px; }
+  .team-member { padding: 14px 16px; gap: 12px; }
+  .advisor-card { flex-direction: column; gap: 12px; align-items: flex-start; padding: 16px; }
+  .closing { padding: 36px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== SITE NAV ===== -->
+<nav class="vhf-nav">
+  <div class="vhf-nav-inner">
+    <a href="../index.html" class="vhf-brand">
+      <div class="vhf-brand-icon">🫀</div>
+      <div>
+        <div class="vhf-brand-text">Virtual-HF</div>
+        <div class="vhf-brand-sub">HF Network · จ.อุดรธานี</div>
+      </div>
+    </a>
+    <button class="vhf-toggle" onclick="this.nextElementSibling.classList.toggle('open')">☰</button>
+    <ul class="vhf-links">
+      <li><a href="../index.html">🏠 Virtual-HF</a></li>
+      <li><a href="standing-order.html">📋 Standing Order</a></li>
+      <li><a href="refer-back-protocol.html">🏥 Refer-Back Protocol</a></li>
+      <li><a href="acknowledgement.html" class="active">🌟 ขอบคุณ</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<div class="hero">
+  <div class="hero-ornament">Virtual-HF Heart Failure Network · จังหวัดอุดรธานี</div>
+  <h1 class="hero-title">
+    ขอบคุณและ<span class="gold">เชิดชูเกียรติ</span><br>
+    ผู้ทุ่มเทเพื่อผู้ป่วยหัวใจล้มเหลว
+  </h1>
+  <p class="hero-sub">
+    โครงการ Virtual-HF สำเร็จได้ด้วยความร่วมมือ ความทุ่มเท<br>
+    และวิสัยทัศน์ของทุกท่านที่ร่วมสร้างเครือข่ายการดูแลผู้ป่วยนี้
+  </p>
+  <div class="hero-badge">🌟 Acknowledgement · เขตสุขภาพที่ 8 · ปี พ.ศ. 2568</div>
+</div>
+
+<!-- Wave SVG -->
+<svg class="wave" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 48" preserveAspectRatio="none">
+  <path d="M0,48 L0,24 Q360,0 720,24 Q1080,48 1440,24 L1440,48 Z" fill="#F8FAFC"/>
+</svg>
+
+<!-- ===== PAGE BODY ===== -->
+<div class="page-body">
+
+  <!-- ==================== TIER 1: ผู้บริหาร ==================== -->
+  <div class="section-head">
+    <div class="section-tier">⭐ ผู้บริหาร &amp; ผู้สนับสนุนเชิงนโยบาย</div>
+    <div class="section-title">Leadership &amp; Institutional Support</div>
+    <div class="section-rule rule-gold"></div>
+  </div>
+
+  <div class="leadership-grid">
+
+    <div class="leader-card">
+      <div class="leader-org">เขตสุขภาพที่ 8</div>
+      <div class="leader-avatar">🏛️</div>
+      <div class="leader-name">นายแพทย์สามารถ ถิระศักดิ์</div>
+      <div class="leader-title">ผู้ตรวจราชการ เขตสุขภาพที่ 8</div>
+      <div class="leader-role">ให้นโยบาย ทิศทาง และการสนับสนุนเชิงระบบแก่โครงการ Virtual-HF ในระดับเขตสุขภาพ ผลักดันให้เกิดเครือข่ายการดูแลผู้ป่วยหัวใจล้มเหลวที่ครอบคลุมทุกโรงพยาบาลในเขต</div>
+    </div>
+
+    <div class="leader-card">
+      <div class="leader-org">สสจ. อุดรธานี</div>
+      <div class="leader-avatar">🏥</div>
+      <div class="leader-name">ดร.นพ.สมชายโชติ ปิยวัชร์เวลา</div>
+      <div class="leader-title">นายแพทย์สาธารณสุขจังหวัดอุดรธานี</div>
+      <div class="leader-role">กำกับดูแลและส่งเสริมการดำเนินงานระดับจังหวัด สนับสนุนทรัพยากรและการประสานงานระหว่างโรงพยาบาลแม่ข่ายและโรงพยาบาลชุมชน</div>
+    </div>
+
+    <div class="leader-card">
+      <div class="leader-org">สสจ. อุดรธานี</div>
+      <div class="leader-avatar">🏥</div>
+      <div class="leader-name">พญ.สืบศิริ บัญฑิตภิรมณ์</div>
+      <div class="leader-title">รองนายแพทย์สาธารณสุขจังหวัดอุดรธานี</div>
+      <div class="leader-role">ประสานงานและผลักดันนโยบาย HF Network ระดับจังหวัด สนับสนุนการดำเนินงานระหว่างหน่วยงานสาธารณสุขทุกระดับ</div>
+    </div>
+
+    <div class="leader-card">
+      <div class="leader-org">เขตสุขภาพที่ 8</div>
+      <div class="leader-avatar">❤️</div>
+      <div class="leader-name">นพ.สุมน ตั้งสุนทรวิวัฒน์</div>
+      <div class="leader-title">ประธาน Service Plan สาขาหัวใจ</div>
+      <div class="leader-role">กำหนดทิศทาง Service Plan สาขาหัวใจ บูรณาการการดูแลผู้ป่วยโรคหัวใจทั่วทั้งจังหวัด เชื่อมโยงระบบ Hub-Spoke อย่างเป็นรูปธรรม</div>
+    </div>
+
+    <div class="leader-card">
+      <div class="leader-org">โรงพยาบาลอุดรธานี</div>
+      <div class="leader-avatar">🏨</div>
+      <div class="leader-name">พญ.ศรีสุดา ทรงธรรมวัฒน์</div>
+      <div class="leader-title">ผู้อำนวยการ โรงพยาบาลอุดรธานี</div>
+      <div class="leader-role">สนับสนุนโครงสร้างพื้นฐาน ทีมแพทย์ผู้เชี่ยวชาญ และระบบ Telemedicine ของโรงพยาบาลศูนย์แม่ข่ายในการให้บริการ Virtual Cardiology Consult</div>
+    </div>
+
+    <div class="leader-card">
+      <div class="leader-org">เขตสุขภาพที่ 8</div>
+      <div class="leader-avatar">🫀</div>
+      <div class="leader-name">นพ.อนุชิต วงศ์เพ็ญ</div>
+      <div class="leader-title">ประธาน Service Plan สาขาหัวใจ เขตสุขภาพที่ 8</div>
+      <div class="leader-role">ริเริ่มและพัฒนาโครงการ Virtual-HF · ออกแบบระบบ Telemedicine สำหรับเครือข่าย HF · บูรณาการ Hub-Spoke ทั่วเขตสุขภาพที่ 8</div>
+    </div>
+
+    <div class="leader-card">
+      <div class="leader-org">โรงพยาบาลอุดรธานี</div>
+      <div class="leader-avatar">👩‍⚕️</div>
+      <div class="leader-name">นางสาวพิมลรัตน์ พิมพ์ดี</div>
+      <div class="leader-title">พยาบาลวิชาชีพชำนาญการพิเศษ</div>
+      <div class="leader-role">ประสานงานระดับบริหาร สนับสนุนการดำเนินงานของทีม Virtual-HF ในระดับโรงพยาบาลศูนย์</div>
+    </div>
+
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ==================== TIER 2: Cardiologists ==================== -->
+  <div class="section-head">
+    <div class="section-tier">🫀 อายุรแพทย์โรคหัวใจ · Hub</div>
+    <div class="section-title">Cardiologists — โรงพยาบาลอุดรธานี</div>
+    <div class="section-rule rule-teal"></div>
+  </div>
+
+  <div class="clinical-grid">
+
+    <div class="clinical-card">
+      <div class="clinical-badge">Head of Cardiology</div>
+      <div class="clinical-name">นพ.อนุชิต วงศ์เพ็ญ</div>
+      <div class="clinical-title">หัวหน้ากลุ่มงานอายุรกรรม โรคหัวใจและหลอดเลือด</div>
+      <div class="clinical-role">หัวหน้าโครงการ Virtual-HF · ออกแบบระบบ Telemedicine · ให้คำปรึกษา Case Complex · GDMT Optimization</div>
+    </div>
+
+    <div class="clinical-card">
+      <div class="clinical-badge">นายแพทย์เชี่ยวชาญ</div>
+      <div class="clinical-name">นพ.วิธียุทธ์ คำตรี</div>
+      <div class="clinical-title">อายุรแพทย์โรคหัวใจและหลอดเลือด</div>
+      <div class="clinical-role">ให้คำปรึกษา Virtual Rounds · Invasive Cardiology · ดูแล Complex Case ระหว่าง Admission</div>
+    </div>
+
+    <div class="clinical-card">
+      <div class="clinical-badge">นายแพทย์ชำนาญการ</div>
+      <div class="clinical-name">พญ.จารุวรรณ ชัยวรมุขกุล</div>
+      <div class="clinical-title">อายุรแพทย์โรคหัวใจและหลอดเลือด</div>
+      <div class="clinical-role">ให้คำปรึกษา Virtual Rounds · ตรวจสอบ Echo Report · วางแผนการรักษา HFpEF / HFmrEF</div>
+    </div>
+
+    <div class="clinical-card">
+      <div class="clinical-badge">นายแพทย์ชำนาญการ</div>
+      <div class="clinical-name">นพ.วิทย์ เหลืองวัฒนานนท์</div>
+      <div class="clinical-title">อายุรแพทย์โรคหัวใจและหลอดเลือด</div>
+      <div class="clinical-role">ให้คำปรึกษา Arrhythmia Management · ดูแล Device Therapy · Virtual Consult สำหรับ Spoke Hospitals</div>
+    </div>
+
+    <div class="clinical-card">
+      <div class="clinical-badge">Head of HF Clinic</div>
+      <div class="clinical-name">นพ.อภิชก์ อภิวัฒนพร</div>
+      <div class="clinical-title">หัวหน้า HF Clinic · อายุรแพทย์โรคหัวใจ</div>
+      <div class="clinical-role">บริหาร HF Clinic · พัฒนา Standing Order · ติดตาม KPI โครงการ · GDMT Titration Protocol</div>
+    </div>
+
+    <div class="clinical-card">
+      <div class="clinical-badge">นายแพทย์ชำนาญการ</div>
+      <div class="clinical-name">นพ.ตุลภัทร บุบผัน</div>
+      <div class="clinical-title">อายุรแพทย์โรคหัวใจและหลอดเลือด</div>
+      <div class="clinical-role">Virtual Cardiology Consult · ดูแลผู้ป่วย HF ระหว่าง IPD · สนับสนุน Telemedicine Rounds</div>
+    </div>
+
+    <div class="clinical-card">
+      <div class="clinical-badge">นายแพทย์ปฏิบัติการ</div>
+      <div class="clinical-name">นพ.พศิน ไพทรย์เจริญลาภ</div>
+      <div class="clinical-title">อายุรแพทย์โรคหัวใจและหลอดเลือด</div>
+      <div class="clinical-role">Virtual Cardiology Consult · Quick Echo Review · ดูแลผู้ป่วย HF ระหว่าง IPD Admission</div>
+    </div>
+
+    <div class="clinical-card">
+      <div class="clinical-badge">นายแพทย์ปฏิบัติการ</div>
+      <div class="clinical-name">นพ.พีระวัส สุขกุล</div>
+      <div class="clinical-title">อายุรแพทย์โรคหัวใจและหลอดเลือด</div>
+      <div class="clinical-role">Virtual Cardiology Consult · Quick Echo Review · ดูแลผู้ป่วย HF ระหว่าง IPD Admission</div>
+    </div>
+
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ==================== TIER 3: Community Physicians ==================== -->
+  <div class="section-head">
+    <div class="section-tier">🏥 อายุรแพทย์ประจำ · Spoke Hospitals</div>
+    <div class="section-title">แพทย์ผู้รับผิดชอบโรงพยาบาลชุมชน</div>
+    <div class="section-rule rule-blue"></div>
+  </div>
+
+  <div class="team-group">
+    <div class="team-group-header">
+      <div class="team-group-icon">🏘️</div>
+      <div>
+        <div class="team-group-title">อายุรแพทย์ประจำ รพช. เครือข่าย จ.อุดรธานี</div>
+        <div class="team-group-sub">Spoke Hospital Internists — ดูแลผู้ป่วยในพื้นที่และประสานงานกับ Hub</div>
+      </div>
+    </div>
+
+    <div class="team-member">
+      <div class="team-dot"></div>
+      <div>
+        <div class="team-name">แพทย์เวชปฏิบัติ / อายุรแพทย์ประจำ รพช. เครือข่าย จ.อุดรธานี</div>
+        <div class="team-pos">โรงพยาบาลชุมชนในเขต จ.อุดรธานี</div>
+        <div class="team-desc">ลงทะเบียนผู้ป่วย HF ผ่าน Virtual-HF · ปฏิบัติตาม Standing Order · ประสานงาน Virtual Consult กับ Cardiologist รพ.อุดรธานี · ดูแลผู้ป่วย IPD Refer-Back</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ==================== TIER 4: HF Case Managers ==================== -->
+  <div class="section-head">
+    <div class="section-tier">💊 แพทย์และพยาบาล</div>
+    <div class="section-title">HF Case Manager Team</div>
+    <div class="section-rule rule-teal"></div>
+  </div>
+
+  <div class="team-group">
+    <div class="team-group-header">
+      <div class="team-group-icon">🤝</div>
+      <div>
+        <div class="team-group-title">ทีม HF Case Manager</div>
+        <div class="team-group-sub">ผู้ดูแลผู้ป่วยอย่างต่อเนื่อง ตั้งแต่ Admission จนถึง Follow-up</div>
+      </div>
+    </div>
+
+    <div class="team-member">
+      <div class="team-dot" style="background:var(--teal)"></div>
+      <div>
+        <div class="team-name">นางสาวสินีนาถ คำตา</div>
+        <div class="team-pos">พยาบาลวิชาชีพชำนาญการ · HF Case Manager</div>
+        <div class="team-desc">ดูแล Medication Titration · ให้ความรู้ผู้ป่วยและครอบครัว · ติดตามอาการหลัง Discharge · บริหาร HF Clinic · ประสาน Re-admission Prevention</div>
+      </div>
+    </div>
+
+    <div class="team-member">
+      <div class="team-dot" style="background:var(--teal)"></div>
+      <div>
+        <div class="team-name">นางสาวนันทวัน หวังเกิดเกียรติ</div>
+        <div class="team-pos">เภสัชกรชำนาญการ · HF Case Manager Team</div>
+        <div class="team-desc">ดูแล Medication Reconciliation · GDMT Drug Titration · ให้คำปรึกษาด้านยาและผลข้างเคียง · ติดตาม Adherence ในผู้ป่วย HF</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ==================== TIER 5: Echo Team ==================== -->
+  <div class="section-head">
+    <div class="section-tier">🔬 ทีมเฉพาะทาง</div>
+    <div class="section-title">ทีมห้อง Echo · โรงพยาบาลอุดรธานี</div>
+    <div class="section-rule rule-blue"></div>
+  </div>
+
+  <div class="clinical-grid">
+
+    <div class="clinical-card" style="border-top-color: var(--blue);">
+      <div class="clinical-badge" style="color:var(--blue);background:#EBF4FF;">Echo Supervisor</div>
+      <div class="clinical-name">นางปริยายนุช รัตนะเมืองเพรียว</div>
+      <div class="clinical-title">พยาบาลวิชาชีพชำนาญการพิเศษ · หัวหน้าทีม Echo Lab</div>
+      <div class="clinical-role">บริหารระบบ Quick Echo Upload · ควบคุมคุณภาพ Study · ประสานงานกับ Cardiologist สำหรับ Remote Echo Review</div>
+    </div>
+
+    <div class="clinical-card" style="border-top-color: var(--blue);">
+      <div class="clinical-badge" style="color:var(--blue);background:#EBF4FF;">Echo Nurse</div>
+      <div class="clinical-name">นางวิชชุลดา เจียรวาปี</div>
+      <div class="clinical-title">พยาบาลวิชาชีพชำนาญการ · Echo Lab</div>
+      <div class="clinical-role">ทำ Echocardiogram ผู้ป่วย HF · Upload Quick Echo · ประสาน Priority Scan สำหรับ Urgent Case</div>
+    </div>
+
+    <div class="clinical-card" style="border-top-color: var(--blue);">
+      <div class="clinical-badge" style="color:var(--blue);background:#EBF4FF;">Cardiac Technologist</div>
+      <div class="clinical-name">นางสาวอรทัย พูลสวัสดิ์</div>
+      <div class="clinical-title">นักเทคโนโลยีหัวใจและทรวงอกชำนาญการ</div>
+      <div class="clinical-role">ทำ Echocardiogram · Upload คลิปผ่าน Quick Echo System · ดูแลคุณภาพ Video Study สำหรับ Remote Review</div>
+    </div>
+
+    <div class="clinical-card" style="border-top-color: var(--blue);">
+      <div class="clinical-badge" style="color:var(--blue);background:#EBF4FF;">Cardiac Technologist</div>
+      <div class="clinical-name">นางสาวณัฐพร โลกธรรมรักษ์</div>
+      <div class="clinical-title">นักเทคโนโลยีหัวใจและทรวงอกปฏิบัติการ</div>
+      <div class="clinical-role">ทำ Echocardiogram · Archive Serial Echo Study · สนับสนุน Spoke Hospitals ในการส่ง Quick Echo</div>
+    </div>
+
+    <div class="clinical-card" style="border-top-color: var(--blue);">
+      <div class="clinical-badge" style="color:var(--blue);background:#EBF4FF;">Cardiac Technologist</div>
+      <div class="clinical-name">นางสาวเมทินี ทวีพิริยะ</div>
+      <div class="clinical-title">นักเทคโนโลยีหัวใจและทรวงอก</div>
+      <div class="clinical-role">ทำ Echocardiogram · ดูแล Echo Archive System · สนับสนุนการทำ Echo สำหรับผู้ป่วย HF Admit</div>
+    </div>
+
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ==================== สสจ. ==================== -->
+  <div class="section-head">
+    <div class="section-tier">🏢 สำนักงานสาธารณสุขจังหวัด</div>
+    <div class="section-title">สสจ. อุดรธานี · ฝ่ายวิชาการและพยาบาล</div>
+    <div class="section-rule rule-blue"></div>
+  </div>
+
+  <div class="advisor-strip">
+
+    <div class="advisor-card">
+      <div class="advisor-icon">📊</div>
+      <div>
+        <div class="advisor-name">กรรณิการ์ ฮวดหลี</div>
+        <div class="advisor-title">นักวิชาการสาธารณสุขเชี่ยวชาญ · สสจ.อุดรธานี</div>
+        <div class="advisor-role">วิเคราะห์ข้อมูลสุขภาพและตัวชี้วัดระดับจังหวัด · ประสานงานระบบรายงาน HF Network · สนับสนุนการพัฒนาคุณภาพบริการ</div>
+      </div>
+    </div>
+
+    <div class="advisor-card">
+      <div class="advisor-icon">📋</div>
+      <div>
+        <div class="advisor-name">นางสาวสถิตดาภรณ์ สุรถิตย์</div>
+        <div class="advisor-title">นักวิชาการชำนาญการพิเศษ · สสจ.อุดรธานี</div>
+        <div class="advisor-role">ประสานงานและกำกับดูแล Service Plan สาขาหัวใจ · ติดตาม KPI โครงการระดับจังหวัด · พัฒนาระบบข้อมูลการดูแลผู้ป่วย HF</div>
+      </div>
+    </div>
+
+    <div class="advisor-card">
+      <div class="advisor-icon">👩‍⚕️</div>
+      <div>
+        <div class="advisor-name">นางดาราวรรณ ทรพีสิงห์</div>
+        <div class="advisor-title">พยาบาลวิชาชีพชำนาญการพิเศษ · สสจ.อุดรธานี</div>
+        <div class="advisor-role">กำกับดูแลด้านการพยาบาลในระบบ HF Network · พัฒนา Nursing Protocol · สนับสนุนพยาบาล Case Manager ในโรงพยาบาลเครือข่าย</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sep"></div>
+
+  <!-- ==================== TIER 6: Senior Advisors ==================== -->
+  <div class="section-head">
+    <div class="section-tier">🎓 ที่ปรึกษา</div>
+    <div class="section-title">ที่ปรึกษาอาวุโส</div>
+    <div class="section-rule rule-slate"></div>
+  </div>
+
+  <div class="advisor-strip">
+
+    <div class="advisor-card">
+      <div class="advisor-icon">🎓</div>
+      <div>
+        <div class="advisor-name">นพ.วิชัย ศิวาวงศ์</div>
+        <div class="advisor-title">นายแพทย์เชี่ยวชาญ · ที่ปรึกษาอาวุโส</div>
+        <div class="advisor-role">ให้คำปรึกษาด้านวิชาการและ Clinical Protocol · ทบทวนแนวทางการรักษา HF · สนับสนุน Evidence-based Practice ในโครงการ Virtual-HF</div>
+      </div>
+    </div>
+
+    <div class="advisor-card">
+      <div class="advisor-icon">👩‍⚕️</div>
+      <div>
+        <div class="advisor-name">นางสาวนารี แซ่อึ้ง</div>
+        <div class="advisor-title">พยาบาลวิชาชีพชำนาญการพิเศษ · ที่ปรึกษาอาวุโส</div>
+        <div class="advisor-role">ให้คำปรึกษาด้านการพยาบาลผู้ป่วย HF · พัฒนา Nursing Care Plan · สนับสนุนทีม Case Manager ในการดูแลผู้ป่วยระยะยาว</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==================== CLOSING QUOTE ==================== -->
+  <div class="closing">
+    <div class="closing-quote">
+      "ความสำเร็จของโครงการนี้คือ<span class="gold">ทุกชีวิตผู้ป่วย</span><br>
+      ที่ได้รับการดูแลอย่างถูกต้องและทันเวลา<br>
+      ด้วยฝีมือของทุกท่านในเครือข่ายนี้"
+    </div>
+    <div class="closing-divider"></div>
+    <div class="closing-attr">Virtual-HF Heart Failure Network · เขตสุขภาพที่ 8 · จังหวัดอุดรธานี · 2568</div>
+  </div>
+
+  <div class="footnote">
+    Virtual-HF · Heart Failure Network<br>
+    🩺 Improving Patient Care ❤️ Driven by Passion<br>
+    © 2568 พัฒนาโดย น.พ.อนุชิต วงษ์เพ็ญ
+  </div>
+
+</div><!-- end page-body -->
+
+<script>
+// hamburger toggle
+document.querySelector('.vhf-toggle')?.addEventListener('click', function() {
+  this.nextElementSibling.classList.toggle('open');
+});
+</script>
+
+</body>
+</html>
