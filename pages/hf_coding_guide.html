@@ -4,13 +4,18 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
   <title>Heart Failure Coder — DC 0555 · TDRG v6.3.3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="preconnect" href="https://unpkg.com"/>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #07090f; -webkit-tap-highlight-color: rgba(77,166,255,0.12); }
+    body { background: #07090f; -webkit-tap-highlight-color: rgba(77,166,255,0.12);
+           font-family: 'Sarabun', sans-serif; -webkit-font-smoothing: antialiased; }
+    .mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
@@ -302,8 +307,8 @@
 
       const S = {
         page:    { minHeight:"100vh", background:T.bg, color:T.txt,
-                   fontFamily:"'JetBrains Mono','Fira Code',monospace",
-                   fontSize: isMobile ? 13 : 12, display:"flex", flexDirection:"column" },
+                   fontFamily:"'Sarabun', sans-serif",
+                   fontSize: isMobile ? 15 : 13, lineHeight: 1.65, display:"flex", flexDirection:"column" },
         header:  { background:T.hdrBg, borderBottom:`1px solid ${T.hdrBorder}`,
                    padding: isMobile ? "10px 14px 0" : "12px 22px 0" },
         pill:    (c,a) => ({
@@ -319,7 +324,7 @@
           borderColor: !isMobile ? (a ? T.pillBorderColor(c) : T.border) : undefined,
           background: a ? T.pillBg(c) : "transparent",
           color: a ? c : T.pillInactive,
-          cursor:"pointer", fontSize: isMobile ? 11 : 10, fontFamily:"inherit",
+          cursor:"pointer", fontSize: isMobile ? 12 : 11, fontFamily:"'Sarabun', sans-serif",
         }),
         left:    isMobile
           ? { width:"100%", overflowY:"auto", padding:"10px 12px", paddingBottom: bottomPad }
@@ -396,7 +401,7 @@
                       return (
                         <div key={key} style={S.codeRow(code.color,sel)} onClick={()=>handleSelectPrimary(key)}>
                           <div style={{display:"flex",alignItems:"center",gap:6}}>
-                            <span style={{fontWeight:700, fontSize: isMobile?13:11, color:sel?code.color:T.codeUnsel}}>{code.code}</span>
+                            <span style={{fontWeight:700, fontSize: isMobile?13:11, color:sel?code.color:T.codeUnsel, fontFamily:"'JetBrains Mono','Fira Code',monospace"}}>{code.code}</span>
                             {code.guardrail&&<span style={{fontSize: isMobile?10:8, background:T.guardBg, color:"#ff9f43", padding:"2px 5px", borderRadius:3}}>⚠️ ctx</span>}
                             {code.warning&&<span style={{fontSize: isMobile?10:8, background:T.warnBg, color:"#ff4757", padding:"2px 5px", borderRadius:3}}>gap</span>}
                           </div>
@@ -433,7 +438,7 @@
                       <div style={S.check(domain.color,sel)} onClick={()=>toggleCC(cond.code)}>{sel?"✓":""}</div>
                       <div style={{flex:1,cursor:"pointer"}} onClick={()=>setDetailCC(detailCC===cond.code?null:cond.code)}>
                         <div style={{display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
-                          <span style={{fontWeight:700, fontSize: isMobile?12:10, color:sel?domain.color:T.txtSub}}>{cond.code}</span>
+                          <span style={{fontWeight:700, fontSize: isMobile?12:10, color:sel?domain.color:T.txtSub, fontFamily:"'JetBrains Mono','Fira Code',monospace"}}>{cond.code}</span>
                           <span style={S.dclBadge(cond.dcl)}>DCL {cond.dcl} · {DCL_META[cond.dcl]?.label}</span>
                           <span style={S.clsBadge(isMCC)}>{cond.cls}</span>
                         </div>
@@ -499,7 +504,7 @@
             <div style={S.card(primary.color)}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
                 <div>
-                  <span style={{fontSize: isMobile?18:16, fontWeight:700, color:primary.color}}>{primary.code}</span>
+                  <span style={{fontSize: isMobile?18:16, fontWeight:700, color:primary.color, fontFamily:"'JetBrains Mono','Fira Code',monospace"}}>{primary.code}</span>
                   <div style={{fontSize: isMobile?12:11, color:T.txt, marginTop:1}}>{primary.label}</div>
                 </div>
                 <span style={{fontSize: isMobile?10:9, padding:"3px 9px", borderRadius:10, background:T.dclBadgeBg(primary.color), color:primary.color}}>
@@ -548,7 +553,7 @@
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
                   <div>
                     <div style={{display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>
-                      <span style={{fontSize: isMobile?15:13, fontWeight:700, color:dom.color}}>{found.code}</span>
+                      <span style={{fontSize: isMobile?15:13, fontWeight:700, color:dom.color, fontFamily:"'JetBrains Mono','Fira Code',monospace"}}>{found.code}</span>
                       <span style={S.dclBadge(found.dcl)}>DCL {found.dcl} · {DCL_META[found.dcl]?.label}</span>
                       <span style={S.clsBadge(isMCC)}>{found.cls}</span>
                     </div>
@@ -606,7 +611,7 @@
                     {active.map(cond=>(
                       <div key={cond.code} onClick={()=>setDetailCC(detailCC===cond.code?null:cond.code)}
                         style={{display:"flex", alignItems:"center", gap:8, padding: isMobile?"9px 10px":"4px 7px", marginBottom:3, borderRadius:4, background:T.activeBg(domain.color), border:`1px solid ${T.activeBorder(domain.color)}`, cursor:"pointer", minHeight: isMobile?44:undefined}}>
-                        <span style={{fontWeight:700, fontSize: isMobile?12:10, color:domain.color}}>{cond.code}</span>
+                        <span style={{fontWeight:700, fontSize: isMobile?12:10, color:domain.color, fontFamily:"'JetBrains Mono','Fira Code',monospace"}}>{cond.code}</span>
                         <span style={{fontSize: isMobile?11:10, color:T.txtDim, flex:1}}>{cond.label}</span>
                         <span style={S.dclBadge(cond.dcl)}>+{cond.dcl}</span>
                         <span style={S.clsBadge(cond.cls.includes("MCC"))}>{cond.cls}</span>
@@ -624,7 +629,7 @@
               <div style={{fontSize: isMobile?10:9, color:T.txtFnt, marginBottom:8, letterSpacing:"0.5px"}}>DISCHARGE CODING BLOCK</div>
               <div style={{fontSize: isMobile?12:11, marginBottom:5}}>
                 <span style={{color:T.txtFnt}}>Principal Dx: </span>
-                <span style={{fontWeight:700, color:primary.color}}>{primary.code}</span>
+                <span style={{fontWeight:700, color:primary.color, fontFamily:"'JetBrains Mono','Fira Code',monospace"}}>{primary.code}</span>
                 <span style={{color:T.txtDim}}> — {primary.label}</span>
               </div>
               {ccSel.length>0&&<>
@@ -632,7 +637,7 @@
                 {CC_DOMAINS.map(domain=>domain.conditions.filter(c=>ccSel.includes(c.code)).map(cond=>(
                   <div key={cond.code} style={{fontSize: isMobile?12:11, marginBottom:4, display:"flex", alignItems:"center", gap:7, flexWrap:"wrap"}}>
                     <span style={{color:T.txtFnt}}>SDx: </span>
-                    <span style={{fontWeight:700, color:domain.color}}>{cond.code}</span>
+                    <span style={{fontWeight:700, color:domain.color, fontFamily:"'JetBrains Mono','Fira Code',monospace"}}>{cond.code}</span>
                     <span style={{color:T.txtDim, flex:1}}>{cond.label}</span>
                     <span style={S.dclBadge(cond.dcl)}>DCL {cond.dcl}</span>
                   </div>
@@ -701,7 +706,7 @@
                   {domain.conditions.map(cond=>(
                     <div key={cond.code} style={{marginBottom:10}}>
                       <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:5}}>
-                        <span style={{fontWeight:700, fontSize: isMobile?12:10, color:domain.color}}>{cond.code}</span>
+                        <span style={{fontWeight:700, fontSize: isMobile?12:10, color:domain.color, fontFamily:"'JetBrains Mono','Fira Code',monospace"}}>{cond.code}</span>
                         <span style={S.dclBadge(cond.dcl)}>DCL {cond.dcl} · {DCL_META[cond.dcl]?.label}</span>
                         <span style={{fontSize: isMobile?11:9, color:T.txtDim}}>{cond.label}</span>
                       </div>
