@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>Heart Failure Coder — DC 0555 · TDRG v6.3.3</title>
+  <link rel="preconnect" href="https://unpkg.com"/>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #07090f; -webkit-tap-highlight-color: rgba(77,166,255,0.12); }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // ── HF Principal Dx (PDC = 5C → DC 0555) ─────────────────────────────────
+    const PRINCIPAL = {
+      I110:  { code:"I110",  tier:1, color:"#00d4a0", label:"Hypertensive HD with HF",
+                triggers:["ความดันโลหิตสูง + HF ในผู้ป่วยเดียวกัน","LVH on echo + elevated BP","HF attributable to long-standing HT"],
+                anchor:"ใช้ I110 แทนการ code I500+I10 แยกกัน เมื่อ HF เกิดจาก HT — 1 code ผลต่อ DRG ดีกว่า",
+                note:"I110 > I500+I10 separately when HF caused by hypertension" },
+      I130:  { code:"I130",  tier:1, color:"#00d4a0", label:"HT heart & renal disease with HF",
+                triggers:["HT + HF + CKD ในคนเดียวกัน","eGFR reduced + HF documented","HTN nephropathy + cardiac involvement"],
+                anchor:"Document: HT duration, eGFR value, HF type — supports I130 over separate coding" },
+      I132:  { code:"I132",  tier:1, color:"#00d4a0", label:"HT heart & renal disease + renal failure",
+                triggers:["HT + HF + CKD stage 4–5 or AKI on CKD","Dialysis + HF","eGFR <30 + HF"],
+                anchor:"I132 = highest-specificity HT-HF code — document eGFR, dialysis status, diuretic response",
+                note:"I132 typically yields higher PCL entry than I130" },
+      I500:  { code:"I500",  tier:2, color:"#4da6ff", label:"Congestive heart failure",
+                triggers:["Bilateral leg edema + orthopnoea + elevated BNP","CXR: cardiomegaly + pulmonary oedema","Diuretic given (furosemide IV/PO)"],
+                anchor:"Specify EF: systolic (HFrEF EF<40%) vs diastolic (HFpEF EF≥50%) vs mid-range — affects sub-code" },
+      I501:  { code:"I501",  tier:2, color:"#4da6ff", label:"Left ventricular failure",
+                triggers:["Acute pulmonary oedema","Flash pulmonary oedema","SpO2 <90% RA + CXR: pulmonary congestion"],
+                anchor:"Use when acute LV failure is the dominant presentation — document SpO2, CXR findings, response to IV furosemide" },
+      R570:  { code:"R570",  tier:3, color:"#ff9f43", label:"Cardiogenic shock",
+                triggers:["SBP <90 mmHg + signs of hypoperfusion","Vasopressor/inotrope required","CI <2.2 L/min/m² on Swan-Ganz"],
+                anchor:"⚠️ Must explicitly document: vasopressor name, SBP value, signs of end-organ hypoperfusion", guardrail:true },
+      R579:  { code:"R579",  tier:3, color:"#ff9f43", label:"Shock, unspecified",
+                triggers:["Haemodynamic instability + HF, type unclear","Mixed shock not yet classified"],
+                anchor:"⚠️ Use R570 if cardiogenic aetiology is established — R579 is fallback only", guardrail:true },
+      I509:  { code:"I509",  tier:0, color:"#ff4757", label:"Heart failure, unspecified ⚠️",
+                triggers:[], anchor:"CODING GAP — review all tiers before accepting I509", warning:true },
+    };
+
+    // ── CC comorbidities for DC 0555 (DCL-annotated) ─────────────────────────
+    const CC_DOMAINS = [
+      { id:"cv", label:"Cardiovascular", color:"#ff6b9d", conditions:[
+        { code:"I10",   dcl:1, label:"Essential hypertension",          cls:"CC",
+          triggers:["Antihypertensive continued during admission","BP monitoring charted","Known HT on meds"],
+          anchor:"'Essential HT — [amlodipine/losartan] continued, BP [range] mmHg monitored daily'",
+          omission:"Documented in PMH only — never added to Dx list",
+          key_context:[{ th:"ความดันโลหิตสูง ได้รับ [ชื่อยา] ต่อเนื่อง ติดตาม BP ค่า [X/Y] mmHg ตลอดการรักษา",
+                         en:"Essential HT — [amlodipine/losartan] continued throughout admission, BP monitored [X/Y] mmHg" }]},
+        { code:"I4891", dcl:2, label:"Atrial fibrillation (unspecified)", cls:"CC",
+          triggers:["Rate control continued (digoxin/diltiazem/BB)","NOAC/warfarin therapeutic","ECG showing AF"],
+          anchor:"Specify: paroxysmal/persistent/permanent + rate control agent + anticoagulation",
+          sub:"I480 PAF · I4811 Longstanding persistent · I4819 Persistent · I4820 Chronic",
+          key_context:[{ th:"Atrial fibrillation [paroxysmal/persistent/permanent] ควบคุม rate ด้วย [ยา], anticoagulation ด้วย [NOAC/warfarin INR ___]",
+                         en:"AF [paroxysmal/persistent/permanent] — rate controlled with [drug], anticoagulated with [NOAC / warfarin INR ___]" }]},
+        { code:"I250",  dcl:1, label:"Atherosclerotic HD (CAD)",         cls:"CC",
+          triggers:["Known CAD / post-PCI / post-CABG","Aspirin + statin continued","Nitrate on medication list"],
+          anchor:"'CAD s/p PCI [year] — DAPT/aspirin + statin continued during admission'",
+          key_context:[{ th:"โรคหลอดเลือดหัวใจตีบ s/p PCI [ปี] ได้รับ aspirin + statin ต่อเนื่อง",
+                         en:"CAD s/p PCI [year] — aspirin + statin continued, no acute ischaemic event this admission" }]},
+        { code:"I420",  dcl:2, label:"Dilated cardiomyopathy",           cls:"CC",
+          triggers:["Echo: dilated LV + reduced EF","Known DCM on medical therapy","LBBB + reduced EF"],
+          anchor:"Document EF value + echo date. 'DCM (EF 25%), on sacubitril/valsartan'",
+          key_context:[{ th:"Dilated cardiomyopathy (EF ___%) ได้รับ [sacubitril/valsartan, BB, spironolactone] ต่อเนื่อง ล่าสุด Echo [วันที่]",
+                         en:"Dilated cardiomyopathy (EF ___%) — [sacubitril/valsartan / BB / spironolactone] continued, Echo [date]" }]},
+        { code:"I214",  dcl:3, label:"NSTEMI",                           cls:"MCC",
+          triggers:["Troponin elevated + ischaemic ECG changes","ACS workup initiated","Cardiology consult for ACS"],
+          anchor:"'NSTEMI — troponin I peak [value], ECG: [changes], managed with [antiplatelet + anticoagulant]'",
+          key_context:[{ th:"NSTEMI — troponin I peak [ค่า] ng/mL, ECG: [ST depression/T inversion], ได้รับ dual antiplatelet + anticoagulant",
+                         en:"NSTEMI — troponin I peak [value] ng/mL, ECG: [changes], treated with dual antiplatelet + anticoagulant" }]},
+      ]},
+      { id:"resp", label:"Respiratory", color:"#74b9ff", conditions:[
+        { code:"J181",  dcl:2, label:"Lobar pneumonia",                   cls:"CC",
+          triggers:["CXR: lobar/segmental consolidation (lobe-specific)","Fever + pleuritic chest pain + productive cough","Radiologist confirms lobar pattern (RLL/RML/LLL/RUL/LUL)"],
+          anchor:"Document lobe affected — 'Lobar pneumonia [RLL] — CXR confirmed, [antibiotic], culture [result]'. J181 > J189 when lobar pattern on CXR",
+          key_context:[{ th:"ปอดบวม Lobar pneumonia — CXR: consolidation [RLL/RML/LLL] รักษาด้วย [ยา] เพาะเชื้อ [ผล] อาการดีขึ้นวันที่ [X] หลังรับยา",
+                         en:"Lobar pneumonia — CXR: [lobe] consolidation, treated with [antibiotic], culture [result], clinical response Day [X]" }]},
+        { code:"J180",  dcl:2, label:"Bronchopneumonia",                  cls:"CC",
+          triggers:["CXR: patchy bilateral infiltrates (bronchopneumonic pattern)","Multifocal airspace opacities without clear lobar boundary","CAP — radiologist reports bronchopneumonic pattern"],
+          anchor:"Document CXR pattern + antibiotic. 'Bronchopneumonia — CXR: patchy bilateral infiltrates, [antibiotic], clinical response Day [X]'. J180 > J189 when pattern confirmed",
+          key_context:[{ th:"ปอดบวม Bronchopneumonia — CXR: [patchy infiltrate/bilateral] รักษาด้วย [ยา] เพาะเชื้อ [ผล] อาการดีขึ้นวันที่ [X] หลังรับยา",
+                         en:"Bronchopneumonia — CXR: patchy/bilateral infiltrates, treated with [antibiotic], culture [result], clinical response Day [X]" }]},
+        { code:"J961",  dcl:3, label:"Acute resp failure — hypercapnic",   cls:"MCC",
+          triggers:["PaCO2 >45 mmHg + respiratory acidosis on ABG","BiPAP/NIV initiated for CO2 retention","Known COPD + acute decompensation with hypercapnia"],
+          anchor:"'Acute hypercapnic RF — ABG: pH [value], PaCO2 [value] mmHg, BiPAP initiated at [settings]'. Must document PaCO2 explicitly",
+          note:"J961 = DCL 3 in DC 0555. Hypercapnia = ventilatory failure separate from HF → true additional complexity",
+          key_context:[{ th:"Acute hypercapnic respiratory failure — ABG: pH [ค่า] PaCO2 [ค่า] mmHg, ใช้ BiPAP/NIV [settings], ตอบสนองต่อการรักษาวันที่ [X]",
+                         en:"Acute hypercapnic RF — ABG: pH [value], PaCO2 [value] mmHg (elevated), BiPAP [settings] initiated, clinical response Day [X]" }]},
+        { code:"J960",  dcl:0, label:"Acute resp failure — hypoxemic ⚠️ DCL 0", cls:"CC",
+          triggers:["SpO2 <90% RA requiring supplemental O2 / HFNC","PaO2/FiO2 <300","Hypoxia WITHOUT CO2 retention"],
+          anchor:"⚠️ J960 contributes DCL 0 in DC 0555 — hypoxemia is inherent to HF. Document PaCO2 to determine if J961 applies instead",
+          note:"Hypoxemia is excluded as CC in DC 0555 (double-counts HF complexity). Only J961 (hypercapnic) adds PCL in this DC",
+          key_context:[{ th:"Acute hypoxemic respiratory failure — SpO2 [ค่า]% RA, HFNC [flow] L/min, ABG: PaO2 [ค่า] PaCO2 [ค่า] (ตรวจสอบ CO2 ก่อน code J961)",
+                         en:"Acute hypoxemic RF — SpO2 [value]% RA, HFNC [flow] L/min, ABG: PaO2 [value] PaCO2 [value]. Check CO2 — if elevated, code J961 instead" }]},
+        { code:"J440",  dcl:2, label:"COPD with acute LRI",              cls:"CC",
+          triggers:["Known COPD on bronchodilator + acute infection","Home O2 + acute exacerbation"],
+          anchor:"J44.0 may replace J18.9 + J44.x combination as principal Dx — check grouper",
+          key_context:[{ th:"COPD กำเริบจากการติดเชื้อทางเดินหายใจ ได้รับ [LABA/LAMA/ICS] ต่อเนื่อง ปรับ O2 therapy",
+                         en:"COPD with acute LRI exacerbation — [LABA/LAMA/ICS] continued, O2 therapy adjusted" }]},
+      ]},
+      { id:"met", label:"Metabolic / Renal", color:"#ffd93d", conditions:[
+        { code:"E119",  dcl:1, label:"Type 2 DM without complications",  cls:"CC",
+          triggers:["BSL monitoring charted","Insulin sliding scale / OAD continued","HbA1c checked this admission"],
+          anchor:"Upgrade to E1165 if BSL >200 mg/dL documented — higher DCL",
+          omission:"Only listed in PMH — never added to active problem list",
+          key_context:[{ th:"เบาหวานชนิดที่ 2 ได้รับ [ชื่อยา] ต่อเนื่อง ติดตาม BSL [ค่า] mg/dL, HbA1c [ค่า]%",
+                         en:"Type 2 DM — [metformin/insulin] continued, BSL monitored [range] mg/dL, HbA1c [value]%" }]},
+        { code:"E1165", dcl:2, label:"T2DM with hyperglycaemia",         cls:"CC",
+          triggers:["BSL >200 mg/dL documented","Insulin dose adjusted for hyperglycaemia","Sliding scale active"],
+          anchor:"'T2DM with hyperglycaemia (BSL [peak] mg/dL) — insulin adjusted [doses]'",
+          note:"E1165 > E119 when hyperglycaemia documented — adds DCL 2 vs DCL 1",
+          key_context:[{ th:"เบาหวานชนิดที่ 2 ร่วมกับน้ำตาลในเลือดสูง (BSL สูงสุด [ค่า] mg/dL) ปรับ insulin [dose] ต่อเนื่อง",
+                         en:"T2DM with hyperglycaemia (BSL peak [value] mg/dL) — insulin regimen adjusted, glucose trending down" }]},
+        { code:"N183",  dcl:1, label:"CKD stage 3 (eGFR 30–59)",         cls:"CC",
+          triggers:["eGFR 30–59 documented","Cr trending + renal dosing applied","Nephrology co-management"],
+          anchor:"Always document eGFR value + drug dose adjustments. 'CKD3b (eGFR 38), [drug] dose adjusted'",
+          key_context:[{ th:"ไตเรื้อรังระยะที่ 3 (eGFR [ค่า] mL/min) ปรับขนาดยาตามการทำงานของไต ติดตาม Cr [ค่า] mg/dL",
+                         en:"CKD stage 3 (eGFR [value] mL/min) — drug dosing adjusted, creatinine trended [values] mg/dL" }]},
+        { code:"N185",  dcl:2, label:"CKD stage 5 / ESRD",               cls:"MCC",
+          triggers:["eGFR <15 or on dialysis","Haemodialysis / peritoneal dialysis ongoing","Pre-dialysis CKD5"],
+          anchor:"Document dialysis schedule + modality. 'ESRD on HD MWF — interdialytic fluid management'",
+          note:"N185/N186 = higher DCL — significant PCL contribution",
+          key_context:[{ th:"ไตเรื้อรังระยะสุดท้าย (eGFR <15 หรือฟอกไต [HD/PD]) จัดการสารน้ำระหว่าง dialysis",
+                         en:"ESRD (eGFR <15 / HD [MWF] / PD) — interdialytic fluid management, potassium monitored" }]},
+        { code:"E669",  dcl:1, label:"Obesity",                          cls:"CC",
+          triggers:["BMI ≥30 documented","Affecting positioning/ventilation","Sleep apnoea mentioned"],
+          anchor:"Document BMI value explicitly. 'Obesity (BMI 36) — positioning for aeration, CPAP considered'",
+          key_context:[{ th:"โรคอ้วน (BMI [ค่า]) ส่งผลต่อการหายใจและการเคลื่อนไหว ได้รับการจัดท่าเหมาะสม",
+                         en:"Obesity (BMI [value]) — impacts ventilation and mobilisation, positioning optimised" }]},
+      ]},
+      { id:"shock", label:"Sepsis / Haemodynamic", color:"#fd79a8", conditions:[
+        { code:"A419",  dcl:4, label:"Sepsis, unspecified",              cls:"MCC",
+          triggers:["qSOFA ≥2 or SOFA ≥2","Vasopressor initiated","Physician explicitly documents sepsis"],
+          anchor:"⚠️ Requires explicit physician documentation — 'sepsis secondary to [source]'",
+          note:"Must be physician-documented — not coder-inferred",
+          key_context:[{ th:"Sepsis จาก [แหล่งติดเชื้อ] — SOFA score [ค่า], ได้รับ vasopressor [ชื่อยา], hemodynamic ดีขึ้นหลังให้ยา",
+                         en:"Sepsis secondary to [source] — SOFA [value], vasopressor [drug] initiated, haemodynamic response documented" }]},
+        { code:"I461",  dcl:4, label:"Cardiac arrest, survived",         cls:"MCC",
+          triggers:["CPR performed this admission","ROSC documented","Post-cardiac arrest care"],
+          anchor:"Document: rhythm, CPR duration, ROSC time, post-arrest management",
+          key_context:[{ th:"Cardiac arrest (rhythmic [VF/VT/PEA/asystole]) ทำ CPR [นาที] ROSC ที่ [นาที] หลังทำ CPR ดูแล post-arrest care",
+                         en:"Cardiac arrest ([VF/VT/PEA/asystole]) — CPR [duration] min, ROSC at [X] min, post-arrest care initiated" }]},
+      ]},
+      { id:"neuro", label:"Neurological", color:"#c8a2f8", conditions:[
+        { code:"I693",  dcl:2, label:"Post-stroke sequelae",             cls:"CC",
+          triggers:["Residual hemiplegia/hemiparesis","Dysphagia post-stroke","NGT feeding due to stroke"],
+          anchor:"I69.391 dysphagia post-CI + J69.0 aspiration — strong audit-defensible documentation pair",
+          key_context:[{ th:"ผลแทรกซ้อนหลังเส้นเลือดสมอง — [อัมพาต/กลืนลำบาก] ได้รับ [PT/SLP] ฟื้นฟู อาหารทาง NGT",
+                         en:"Post-stroke sequelae — [hemiplegia/dysphagia], [PT/SLP] rehabilitation, [NGT feeding / modified diet]" }]},
+        { code:"F0390", dcl:1, label:"Dementia (unspecified)",           cls:"CC",
+          triggers:["Known dementia","Anti-dementia drug continued","Caregiver-assisted ADL","MMSE documented"],
+          anchor:"'Advanced dementia — unable to follow commands, aspiration risk elevated, caregiver present'",
+          key_context:[{ th:"สมองเสื่อม — ได้รับ [donepezil/memantine] ต่อเนื่อง MMSE [ค่า]/30, ช่วยเหลือตนเองได้น้อย ความเสี่ยงสำลัก",
+                         en:"Dementia — [donepezil/memantine] continued, MMSE [value]/30, ADL-dependent, aspiration risk elevated" }]},
+      ]},
+    ];
+
+    // ── DRG lookup ────────────────────────────────────────────────────────────
+    const DRG_TABLE = {
+      "05550": { label:"w/o significant CCC", rw:0.6831, wtlos:3.36,  color:"#64748b" },
+      "05551": { label:"w/ minimal CCC",      rw:1.3294, wtlos:5.24,  color:"#4da6ff" },
+      "05552": { label:"w/ moderate CCC",     rw:2.9495, wtlos:8.57,  color:"#ffd93d" },
+      "05553": { label:"w/ major CCC",        rw:5.5413, wtlos:12.72, color:"#ff9f43" },
+      "05554": { label:"w/ extreme CCC",      rw:7.3352, wtlos:18.81, color:"#ff4757" },
+    };
+
+    function pclToDrg(pcl) {
+      if (pcl <= 2) return "05550";
+      if (pcl <= 4) return "05551";
+      if (pcl <= 6) return "05552";
+      if (pcl <= 8) return "05553";
+      return "05554";
+    }
+
+    const DCL_META = {
+      0:{ label:"ไม่ใช่ CC", color:"#334155" },
+      1:{ label:"Minor CC",  color:"#64748b" },
+      2:{ label:"Moderate",  color:"#4da6ff" },
+      3:{ label:"Major",     color:"#ff9f43" },
+      4:{ label:"Extreme",   color:"#ff4757" },
+      5:{ label:"V.Extreme", color:"#c084fc" },
+    };
+
+    const tierLabel  = { 1:"Tier 1 — Attributable Etiology", 2:"Tier 2 — Specified Clinical Type", 3:"Tier 3 — Haemodynamic Crisis", 0:"Fallback" };
+    const tierDesc   = { 1:"HF caused by identifiable systemic disease (HT/renal) — highest DRG specificity", 2:"HF type documented with clinical pattern — good specificity", 3:"Shock state documented — requires vasopressor evidence", 0:"ไม่ระบุ — ตรวจสอบ Tier 1–3 ก่อนยอมรับ" };
+    const tierColors = { 1:"#00d4a0", 2:"#4da6ff", 3:"#ff9f43", 0:"#ff4757" };
+
+    // ── App ───────────────────────────────────────────────────────────────────
+    function App() {
+      const [selPrimary, setSelPrimary] = useState(null);
+      const [ccSel, setCcSel]           = useState([]);
+      const [tab, setTab]               = useState(() => window.innerWidth < 768 ? "selector" : "tree");
+      const [expTier, setExpTier]       = useState({ 1:true, 2:false, 3:false, 0:false });
+      const [expCC, setExpCC]           = useState({});
+      const [detailCC, setDetailCC]     = useState(null);
+      const [isMobile, setIsMobile]     = useState(() => window.innerWidth < 768);
+      const [dark, setDark]             = useState(true);
+
+      useEffect(() => {
+        const h = () => {
+          const mobile = window.innerWidth < 768;
+          setIsMobile(mobile);
+          if (!mobile && tab === "selector") setTab("tree");
+        };
+        window.addEventListener("resize", h);
+        return () => window.removeEventListener("resize", h);
+      }, [tab]);
+
+      useEffect(() => {
+        document.body.style.background = dark ? "#07090f" : "#f1f5f9";
+      }, [dark]);
+
+      const primary = selPrimary ? PRINCIPAL[selPrimary] : null;
+      const toggleCC = (code) => setCcSel(p => p.includes(code) ? p.filter(x=>x!==code) : [...p,code]);
+
+      const allCCData      = CC_DOMAINS.flatMap(d => d.conditions);
+      const selectedCCData = ccSel.map(c => allCCData.find(x=>x.code===c)).filter(Boolean);
+      const pcl     = Math.min(9, selectedCCData.reduce((s,c) => s+(c.dcl||0), 0));
+      const drg     = selPrimary && !primary?.warning ? pclToDrg(pcl) : null;
+      const drgInfo = drg ? DRG_TABLE[drg] : null;
+      const mccCount = selectedCCData.filter(c=>c.cls.includes("MCC")).length;
+      const ccCount  = selectedCCData.length - mccCount;
+
+      const handleSelectPrimary = (key) => {
+        const next = selPrimary === key ? null : key;
+        setSelPrimary(next);
+        if (isMobile && next) setTab("tree");
+      };
+
+      const TABS = isMobile
+        ? [["selector","Dx/CC"],["tree","Tree"],["summary","Summary"],["context","Context"]]
+        : [["tree","Decision Tree"],["summary","Code Summary"],["context","Key Context"]];
+
+      const showLeft  = !isMobile || tab === "selector";
+      const showRight = !isMobile || tab !== "selector";
+
+      // bottom bar visible when primary or CCs selected on mobile
+      const showBottomBar = isMobile && (selPrimary || ccSel.length > 0);
+      const bottomPad     = showBottomBar ? "72px" : (isMobile ? "16px" : undefined);
+
+      // ── Theme tokens ──────────────────────────────────────────────────────
+      const T = dark ? {
+        bg:"#07090f", txt:"#e2e8f0", txtSub:"#94a3b8", txtMut:"#64748b",
+        txtDim:"#475569", txtFnt:"#334155", txtGhost:"#1e293b", codeUnsel:"#cbd5e1",
+        surf:"rgba(255,255,255,0.02)", border:"rgba(255,255,255,0.05)",
+        border2:"rgba(255,255,255,0.06)", borderDash:"rgba(255,255,255,0.07)",
+        borderRight:"rgba(255,255,255,0.04)", codeRowBg:"rgba(255,255,255,0.01)",
+        pclFill:"rgba(255,255,255,0.06)", clsBg:"rgba(255,255,255,0.06)",
+        anchorBg:"rgba(255,255,255,0.03)", omissionBg:"rgba(255,71,87,0.05)",
+        omissionBorder:"rgba(255,71,87,0.35)", omissionBorder2:"rgba(255,71,87,0.3)",
+        noteYellowBg:"rgba(253,212,0,0.05)", subcodeBg:"rgba(255,255,255,0.03)",
+        guardBg:"rgba(255,159,67,0.12)", warnBg:"rgba(255,71,87,0.12)",
+        summaryBg:"rgba(255,255,255,0.02)", summaryBorder:"rgba(255,255,255,0.06)",
+        divider:"rgba(255,255,255,0.05)", pclNoteBg:"rgba(255,255,255,0.02)",
+        bottomBar:"rgba(10,22,40,0.97)", bottomBarBorderFn:(c)=>c?`${c}50`:"rgba(255,255,255,0.1)",
+        hdrBg:"linear-gradient(135deg,#0d1b3e,#0a1628)", hdrBorder:"rgba(77,166,255,0.12)",
+        toggleBorder:"rgba(255,255,255,0.15)", toggleBg:"rgba(255,255,255,0.05)",
+        pclActive:"#fff", drgEmpty:"#1e293b",
+        cardBg:(c)=>`${c}07`, cardBorder:(c)=>`${c}22`,
+        tierBg:(c)=>`${c}08`, tierBorder:(c)=>`${c}20`,
+        kwBg:(c)=>`${c}08`, kwBorder:(c)=>`${c}18`,
+        dclBadgeBg:(c)=>`${c}18`, dclBadgeBorder:(c)=>`${c}30`,
+        activeBg:(c)=>`${c}06`, activeBorder:(c)=>`${c}16`,
+        pillBg:(c)=>`${c}12`, pillBorderColor:(c)=>`${c}30`, pillInactive:"#475569",
+      } : {
+        bg:"#f1f5f9", txt:"#0f172a", txtSub:"#1e293b", txtMut:"#475569",
+        txtDim:"#64748b", txtFnt:"#94a3b8", txtGhost:"#cbd5e1", codeUnsel:"#334155",
+        surf:"rgba(255,255,255,0.85)", border:"rgba(0,0,0,0.08)",
+        border2:"rgba(0,0,0,0.1)", borderDash:"rgba(0,0,0,0.12)",
+        borderRight:"rgba(0,0,0,0.08)", codeRowBg:"rgba(255,255,255,0.7)",
+        pclFill:"rgba(0,0,0,0.07)", clsBg:"rgba(0,0,0,0.06)",
+        anchorBg:"rgba(0,0,0,0.04)", omissionBg:"rgba(255,71,87,0.07)",
+        omissionBorder:"rgba(255,71,87,0.4)", omissionBorder2:"rgba(255,71,87,0.3)",
+        noteYellowBg:"rgba(160,120,0,0.08)", subcodeBg:"rgba(0,0,0,0.04)",
+        guardBg:"rgba(255,159,67,0.12)", warnBg:"rgba(255,71,87,0.09)",
+        summaryBg:"rgba(255,255,255,0.8)", summaryBorder:"rgba(0,0,0,0.08)",
+        divider:"rgba(0,0,0,0.06)", pclNoteBg:"rgba(0,0,0,0.03)",
+        bottomBar:"rgba(248,250,252,0.97)", bottomBarBorderFn:(c)=>c?`${c}60`:"rgba(0,0,0,0.12)",
+        hdrBg:"linear-gradient(135deg,#0d1b3e,#0a1628)", hdrBorder:"rgba(77,166,255,0.25)",
+        toggleBorder:"rgba(255,255,255,0.2)", toggleBg:"rgba(255,255,255,0.1)",
+        pclActive:"#0f172a", drgEmpty:"#94a3b8",
+        cardBg:(c)=>`${c}10`, cardBorder:(c)=>`${c}30`,
+        tierBg:(c)=>`${c}10`, tierBorder:(c)=>`${c}28`,
+        kwBg:(c)=>`${c}10`, kwBorder:(c)=>`${c}25`,
+        dclBadgeBg:(c)=>`${c}18`, dclBadgeBorder:(c)=>`${c}38`,
+        activeBg:(c)=>`${c}10`, activeBorder:(c)=>`${c}28`,
+        pillBg:(c)=>`${c}15`, pillBorderColor:(c)=>`${c}35`, pillInactive:"#64748b",
+      };
+
+      const S = {
+        page:    { minHeight:"100vh", background:T.bg, color:T.txt,
+                   fontFamily:"'JetBrains Mono','Fira Code',monospace",
+                   fontSize: isMobile ? 13 : 12, display:"flex", flexDirection:"column" },
+        header:  { background:T.hdrBg, borderBottom:`1px solid ${T.hdrBorder}`,
+                   padding: isMobile ? "10px 14px 0" : "12px 22px 0" },
+        pill:    (c,a) => ({
+          padding: isMobile ? "0 0" : "4px 12px",
+          flex: isMobile ? 1 : undefined,
+          textAlign: isMobile ? "center" : undefined,
+          minHeight: isMobile ? 44 : undefined,
+          display:"flex", alignItems:"center", justifyContent:"center",
+          borderRadius: isMobile ? 0 : "4px 4px 0 0",
+          border: isMobile ? "none" : "1px solid",
+          borderBottom:"none",
+          borderTop: isMobile ? `2px solid ${a ? c : "transparent"}` : undefined,
+          borderColor: !isMobile ? (a ? T.pillBorderColor(c) : T.border) : undefined,
+          background: a ? T.pillBg(c) : "transparent",
+          color: a ? c : T.pillInactive,
+          cursor:"pointer", fontSize: isMobile ? 11 : 10, fontFamily:"inherit",
+        }),
+        left:    isMobile
+          ? { width:"100%", overflowY:"auto", padding:"10px 12px", paddingBottom: bottomPad }
+          : { width:370, flexShrink:0, overflowY:"auto",
+              borderRight:`1px solid ${T.borderRight}`,
+              padding:"10px 8px", height:"calc(100vh - 72px)" },
+        right:   isMobile
+          ? { width:"100%", overflowY:"auto", padding:"12px 14px", paddingBottom: bottomPad }
+          : { flex:1, overflowY:"auto", padding:"12px 16px", height:"calc(100vh - 72px)" },
+        tierHdr: (c) => ({
+          display:"flex", alignItems:"center", gap:5,
+          padding: isMobile ? "11px 10px" : "5px 7px",
+          minHeight: isMobile ? 48 : undefined, borderRadius:5,
+          background:T.tierBg(c), border:`1px solid ${T.tierBorder(c)}`,
+          cursor:"pointer", marginBottom:3, WebkitUserSelect:"none", userSelect:"none",
+        }),
+        codeRow: (c,s) => ({
+          padding: isMobile ? "10px 12px" : "5px 7px",
+          minHeight: isMobile ? 52 : undefined,
+          borderRadius:4, border:"1px solid",
+          borderColor: s ? c : T.border,
+          background: s ? T.activeBg(c) : T.codeRowBg,
+          cursor:"pointer", transition:"all .12s", marginBottom:3,
+          WebkitUserSelect:"none", userSelect:"none",
+        }),
+        ccRow:   { display:"flex", alignItems:"flex-start", gap: isMobile?10:5,
+                   paddingLeft: isMobile?4:6, marginBottom: isMobile?6:3 },
+        check:   (c,s) => ({
+          width: isMobile ? 22 : 12, height: isMobile ? 22 : 12, borderRadius:4,
+          border:`${isMobile?2:1.5}px solid ${s ? c : T.txtFnt}`,
+          background: s ? c : "transparent",
+          display:"flex", alignItems:"center", justifyContent:"center",
+          fontSize: isMobile ? 13 : 8, color: dark?"#000":"#fff",
+          flexShrink:0, cursor:"pointer", marginTop: isMobile ? 3 : 2,
+          WebkitUserSelect:"none", userSelect:"none",
+        }),
+        card:    (c) => ({ background:T.cardBg(c), border:`1px solid ${T.cardBorder(c)}`,
+                           borderRadius:7, padding:"12px 14px", marginBottom:10 }),
+        anchor:  (c,w) => ({ background:T.anchorBg, borderRadius:4,
+                              padding:"7px 9px", borderLeft:`3px solid ${w?"#ff9f43":c}`, marginTop:8 }),
+        dclBadge:(d) => {
+          const dc = DCL_META[d]?.color || T.txtFnt;
+          return { fontSize: isMobile?10:8, padding:"2px 6px", borderRadius:3,
+                   background:T.dclBadgeBg(dc), color:dc,
+                   border:`1px solid ${T.dclBadgeBorder(dc)}`, flexShrink:0 };
+        },
+        clsBadge:(m) => ({ fontSize: isMobile?10:8, padding:"2px 6px", borderRadius:3,
+                           background:m?"rgba(255,107,157,0.15)":T.clsBg,
+                           color:m?"#ff6b9d":T.txtDim }),
+        kwBox:   (c) => ({ background:T.kwBg(c), border:`1px solid ${T.kwBorder(c)}`,
+                           borderRadius:5, padding:"10px 12px", marginBottom:8 }),
+      };
+
+      // ── Selector panel (left) content ─────────────────────────────────────
+      const SelectorPanel = () => (
+        <div style={S.left}>
+          {[1,2,3,0].map(tier=>{
+            const codes = Object.entries(PRINCIPAL).filter(([,v])=>v.tier===tier);
+            const c = tierColors[tier];
+            return (
+              <div key={tier} style={{marginBottom:8}}>
+                <div style={S.tierHdr(c)} onClick={()=>setExpTier(p=>({...p,[tier]:!p[tier]}))}>
+                  <span style={{color:c, fontSize: isMobile?10:8}}>{expTier[tier]?"▼":"▶"}</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize: isMobile?11:10, fontWeight:700, color:c}}>{tierLabel[tier]}</div>
+                    <div style={{fontSize: isMobile?10:9, color:T.txtFnt, marginTop:1}}>{tierDesc[tier]}</div>
+                  </div>
+                  <span style={{fontSize: isMobile?10:9, color:T.txtFnt}}>{codes.length}</span>
+                </div>
+                {expTier[tier]&&(
+                  <div style={{paddingLeft: isMobile?4:5}}>
+                    {codes.map(([key,code])=>{
+                      const sel=selPrimary===key;
+                      return (
+                        <div key={key} style={S.codeRow(code.color,sel)} onClick={()=>handleSelectPrimary(key)}>
+                          <div style={{display:"flex",alignItems:"center",gap:6}}>
+                            <span style={{fontWeight:700, fontSize: isMobile?13:11, color:sel?code.color:T.codeUnsel}}>{code.code}</span>
+                            {code.guardrail&&<span style={{fontSize: isMobile?10:8, background:T.guardBg, color:"#ff9f43", padding:"2px 5px", borderRadius:3}}>⚠️ ctx</span>}
+                            {code.warning&&<span style={{fontSize: isMobile?10:8, background:T.warnBg, color:"#ff4757", padding:"2px 5px", borderRadius:3}}>gap</span>}
+                          </div>
+                          <div style={{fontSize: isMobile?11:10, color:T.txtMut, marginTop:2}}>{code.label}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {/* CC comorbidities */}
+          <div style={{borderTop:`1px solid ${T.border}`, marginTop:4, paddingTop:10}}>
+            <div style={{fontSize: isMobile?12:10, fontWeight:700, color:"#ff6b9d", marginBottom:6, paddingLeft:2}}>
+              CC Comorbidities
+              <span style={{fontSize: isMobile?10:9, color:T.txtFnt, fontWeight:400}}> · PCL ← sum DCL (cap 9)</span>
+            </div>
+            {CC_DOMAINS.map(domain=>(
+              <div key={domain.id} style={{marginBottom:8}}>
+                <div style={S.tierHdr(domain.color)} onClick={()=>setExpCC(p=>({...p,[domain.id]:!p[domain.id]}))}>
+                  <span style={{color:domain.color, fontSize: isMobile?10:8}}>{expCC[domain.id]?"▼":"▶"}</span>
+                  <span style={{fontSize: isMobile?12:10, fontWeight:700, color:domain.color, flex:1}}>{domain.label}</span>
+                  <span style={{fontSize: isMobile?10:9, color:ccSel.filter(s=>domain.conditions.find(c=>c.code===s)).length>0?"#ff6b9d":T.txtFnt}}>
+                    {ccSel.filter(s=>domain.conditions.find(c=>c.code===s)).length}/{domain.conditions.length}
+                  </span>
+                </div>
+                {expCC[domain.id]&&domain.conditions.map(cond=>{
+                  const sel=ccSel.includes(cond.code);
+                  const isMCC=cond.cls.includes("MCC");
+                  return (
+                    <div key={cond.code} style={S.ccRow}>
+                      <div style={S.check(domain.color,sel)} onClick={()=>toggleCC(cond.code)}>{sel?"✓":""}</div>
+                      <div style={{flex:1,cursor:"pointer"}} onClick={()=>setDetailCC(detailCC===cond.code?null:cond.code)}>
+                        <div style={{display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
+                          <span style={{fontWeight:700, fontSize: isMobile?12:10, color:sel?domain.color:T.txtSub}}>{cond.code}</span>
+                          <span style={S.dclBadge(cond.dcl)}>DCL {cond.dcl} · {DCL_META[cond.dcl]?.label}</span>
+                          <span style={S.clsBadge(isMCC)}>{cond.cls}</span>
+                        </div>
+                        <div style={{fontSize: isMobile?11:10, color:T.txtDim, marginTop:2}}>{cond.label}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+
+      // ── Detail panel (right) content ──────────────────────────────────────
+      const DetailPanel = () => (
+        <div style={S.right}>
+
+          {/* PCL → DRG meter */}
+          <div style={{background:T.surf, border:`1px solid ${drgInfo?drgInfo.color+"30":T.border}`, borderRadius:7, padding: isMobile?"12px 14px":"10px 14px", marginBottom:10}}>
+            <div style={{display:"flex", alignItems:"flex-start", gap:16}}>
+              <div style={{flex:1, minWidth:0}}>
+                <div style={{fontSize: isMobile?10:9, color:T.txtFnt, marginBottom:5, letterSpacing:"0.5px"}}>PCL SCORE → DRG (DC 0555)</div>
+                <div style={{display:"flex",gap:2,marginBottom:4}}>
+                  {Array.from({length:9}).map((_,i)=>{
+                    const filled=i<pcl;
+                    const segColor=DRG_TABLE[pclToDrg(i+1)].color;
+                    return <div key={i} style={{flex:1, height: isMobile?12:8, borderRadius:3, background:filled?segColor:T.pclFill, transition:"background .2s"}}/>;
+                  })}
+                </div>
+                <div style={{display:"flex",gap:2,fontSize: isMobile?9:7, marginBottom:5}}>
+                  {["0","1","2","3","4","5","6","7","8","9"].map((n,i)=>(
+                    <div key={i} style={{flex:1,textAlign:"center",color:i===pcl?T.pclActive:T.txtFnt,fontWeight:i===pcl?700:400}}>{n}</div>
+                  ))}
+                </div>
+                <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                  {Object.entries(DRG_TABLE).map(([dc,info])=>(
+                    <span key={dc} style={{fontSize: isMobile?10:8, color:drg===dc?info.color:T.drgEmpty, fontWeight:drg===dc?700:400, padding:"2px 7px", borderRadius:3, background:drg===dc?T.activeBg(info.color):"transparent", border:drg===dc?`1px solid ${T.activeBorder(info.color)}`:"none", transition:"all .2s"}}>{dc}</span>
+                  ))}
+                </div>
+              </div>
+              <div style={{textAlign:"right", flexShrink:0, minWidth: isMobile?100:110}}>
+                <div style={{fontSize: isMobile?10:9, color:T.txtFnt}}>DRG</div>
+                <div style={{fontSize: isMobile?28:24, fontWeight:700, color:drgInfo?drgInfo.color:T.drgEmpty, letterSpacing:1}}>{drg||"—"}</div>
+                {drgInfo&&<>
+                  <div style={{fontSize: isMobile?11:10, color:drgInfo.color, marginTop:1}}>{drgInfo.label}</div>
+                  <div style={{fontSize: isMobile?10:9, color:T.txtFnt, marginTop:2}}>RW <span style={{color:T.txt, fontWeight:700}}>{drgInfo.rw}</span></div>
+                  <div style={{fontSize: isMobile?10:9, color:T.txtFnt}}>PCL <span style={{color:T.txt, fontWeight:700}}>{pcl}</span>/9</div>
+                  <div style={{fontSize: isMobile?10:9, color:T.txtFnt}}>WtLOS <span style={{color:T.txtSub}}>{drgInfo.wtlos}d</span></div>
+                </>}
+                {!drg&&!primary&&<div style={{fontSize: isMobile?10:9, color:T.drgEmpty, marginTop:3}}>เลือก Principal Dx</div>}
+                {primary?.warning&&<div style={{fontSize: isMobile?10:9, color:"#ff4757", marginTop:3}}>⚠️ Coding gap</div>}
+                {ccSel.length>0&&<div style={{fontSize: isMobile?10:9, color:T.txtFnt, marginTop:4}}>
+                  {mccCount>0&&<span style={{color:"#ff6b9d",display:"block"}}>+{mccCount} MCC</span>}
+                  {ccCount>0&&<span style={{color:"#ffd93d",display:"block"}}>+{ccCount} CC</span>}
+                </div>}
+              </div>
+            </div>
+          </div>
+
+          {/* Primary detail */}
+          {primary?(
+            <div style={S.card(primary.color)}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+                <div>
+                  <span style={{fontSize: isMobile?18:16, fontWeight:700, color:primary.color}}>{primary.code}</span>
+                  <div style={{fontSize: isMobile?12:11, color:T.txt, marginTop:1}}>{primary.label}</div>
+                </div>
+                <span style={{fontSize: isMobile?10:9, padding:"3px 9px", borderRadius:10, background:T.dclBadgeBg(primary.color), color:primary.color}}>
+                  {primary.tier>0?"TIER "+primary.tier:"FALLBACK"}
+                </span>
+              </div>
+              {primary.triggers.length>0?<>
+                <div style={{fontSize: isMobile?10:9, color:T.txtFnt, marginBottom:4, letterSpacing:"0.5px"}}>DOCUMENTATION TRIGGERS</div>
+                {primary.triggers.map((t,i)=>(
+                  <div key={i} style={{fontSize: isMobile?11:10, color:T.txtSub, marginBottom:4, display:"flex", gap:6}}>
+                    <span style={{color:primary.color, fontSize: isMobile?9:8}}>◆</span>{t}
+                  </div>
+                ))}
+              </>:(
+                <div style={{color:"#ff4757", fontSize: isMobile?11:10, marginBottom:8}}>
+                  No triggers — fallback code. Review all tiers.
+                  <div style={{marginTop:8}}>
+                    {["มีภาวะ HT, โรคไต ที่เป็นสาเหตุของ HF ใช่หรือไม่? → Tier 1","EF ทราบหรือไม่? systolic vs diastolic?","มี pulmonary oedema acute หรือไม่? → I501","มี shock / ต้องการ vasopressor หรือไม่? → R570","ตรวจสอบ documentation ใน Echo report"].map((q,i)=>(
+                      <div key={i} style={{fontSize: isMobile?11:10, color:T.txtDim, marginBottom:3, paddingLeft:9, borderLeft:"2px solid rgba(255,71,87,0.2)", lineHeight:1.5}}>{i+1}. {q}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div style={S.anchor(primary.color,primary.guardrail)}>
+                <div style={{fontSize: isMobile?10:9, color:T.txtFnt, marginBottom:2}}>{primary.guardrail?"⚠️ GUARDRAIL":"DOCUMENTATION ANCHOR"}</div>
+                <div style={{fontSize: isMobile?11:10, color:primary.guardrail?"#ff9f43":T.txt, lineHeight:1.5}}>{primary.anchor}</div>
+              </div>
+              {primary.note&&<div style={{marginTop:8, fontSize: isMobile?10:9, color:"#ffd93d", padding:"5px 8px", background:T.noteYellowBg, borderRadius:4}}>💡 {primary.note}</div>}
+            </div>
+          ):(
+            <div style={{border:`1px dashed ${T.borderDash}`, borderRadius:7, padding: isMobile?"28px 20px":"24px", textAlign:"center", marginBottom:10}}>
+              <div style={{fontSize:28, marginBottom:8, color:T.drgEmpty}}>{isMobile?"↑":"←"}</div>
+              <div style={{fontSize: isMobile?13:11, color:T.txtFnt}}>{isMobile?"เปิดแท็บ Dx/CC เพื่อเลือก Principal Dx":"เลือก Principal Dx จาก Decision Tree"}</div>
+              <div style={{fontSize: isMobile?11:10, marginTop:3, color:T.drgEmpty}}>เริ่มจาก Tier 1 — หา code ที่ specific ที่สุดก่อน</div>
+            </div>
+          )}
+
+          {/* CC detail */}
+          {detailCC&&(()=>{
+            let found=null,dom=null;
+            for(const d of CC_DOMAINS){const c=d.conditions.find(c=>c.code===detailCC);if(c){found=c;dom=d;break;}}
+            if(!found)return null;
+            const isMCC=found.cls.includes("MCC");
+            return (
+              <div style={S.card(dom.color)}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
+                  <div>
+                    <div style={{display:"flex",alignItems:"center",gap:7,flexWrap:"wrap"}}>
+                      <span style={{fontSize: isMobile?15:13, fontWeight:700, color:dom.color}}>{found.code}</span>
+                      <span style={S.dclBadge(found.dcl)}>DCL {found.dcl} · {DCL_META[found.dcl]?.label}</span>
+                      <span style={S.clsBadge(isMCC)}>{found.cls}</span>
+                    </div>
+                    <div style={{fontSize: isMobile?12:11, color:T.txtSub, marginTop:2}}>{found.label}</div>
+                  </div>
+                  <button onClick={()=>setDetailCC(null)} style={{background:"none",border:"none",color:T.txtFnt,cursor:"pointer",fontSize: isMobile?18:13, padding:"4px 8px"}}>✕</button>
+                </div>
+                {found.sub&&<div style={{fontSize: isMobile?10:9, color:T.txtDim, padding:"4px 8px", background:T.subcodeBg, borderRadius:3, marginBottom:8}}>Subcodes: {found.sub}</div>}
+                <div style={{fontSize: isMobile?10:9, color:T.txtFnt, marginBottom:5, letterSpacing:"0.5px"}}>INCLUDE WHEN</div>
+                {found.triggers.map((t,i)=>(
+                  <div key={i} style={{fontSize: isMobile?11:10, color:T.txtSub, marginBottom:4, display:"flex", gap:6}}>
+                    <span style={{color:dom.color, fontSize: isMobile?9:8}}>◆</span>{t}
+                  </div>
+                ))}
+                <div style={S.anchor(dom.color,false)}>
+                  <div style={{fontSize: isMobile?10:9, color:T.txtFnt, marginBottom:2}}>DOCUMENTATION ANCHOR</div>
+                  <div style={{fontSize: isMobile?11:10, color:T.txt, lineHeight:1.5}}>{found.anchor}</div>
+                </div>
+                {found.omission&&(
+                  <div style={{marginTop:8, padding:"6px 10px", background:T.omissionBg, borderRadius:4, borderLeft:`3px solid ${T.omissionBorder}`}}>
+                    <div style={{fontSize: isMobile?10:9, color:"#ff4757", marginBottom:2}}>COMMON OMISSION</div>
+                    <div style={{fontSize: isMobile?11:10, color:T.txtMut}}>{found.omission}</div>
+                  </div>
+                )}
+                {found.note&&<div style={{marginTop:8, fontSize: isMobile?11:10, color:"#ffd93d", padding:"6px 9px", background:T.noteYellowBg, borderRadius:4}}>💡 {found.note}</div>}
+                {found.key_context?.length>0&&(
+                  <div style={{marginTop:10}}>
+                    <div style={{fontSize: isMobile?10:9, color:T.txtFnt, marginBottom:5, letterSpacing:"0.5px"}}>KEY CONTEXT — คัดลอกใส่ Progress Note</div>
+                    {found.key_context.map((kw,i)=>(
+                      <div key={i} style={S.kwBox(dom.color)}>
+                        <div style={{fontSize: isMobile?10:9, color:dom.color, marginBottom:3}}>TH</div>
+                        <div style={{fontSize: isMobile?11:10, color:T.codeUnsel, marginBottom:7, lineHeight:1.6}}>{kw.th}</div>
+                        <div style={{fontSize: isMobile?10:9, color:dom.color, marginBottom:3}}>EN</div>
+                        <div style={{fontSize: isMobile?11:10, color:T.txtSub, lineHeight:1.6}}>{kw.en}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Active CCs summary */}
+          {ccSel.length>0&&tab!=="context"&&(
+            <div style={{marginBottom:10}}>
+              <div style={{fontSize: isMobile?11:9, color:"#ff6b9d", fontWeight:700, marginBottom:6, letterSpacing:"0.5px"}}>
+                ACTIVE COMORBIDITIES ({ccSel.length} · {mccCount} MCC · {ccCount} CC · PCL {pcl}/9)
+              </div>
+              {CC_DOMAINS.map(domain=>{
+                const active=domain.conditions.filter(c=>ccSel.includes(c.code));
+                if(!active.length)return null;
+                return (
+                  <div key={domain.id} style={{marginBottom:8}}>
+                    <div style={{fontSize: isMobile?10:9, color:domain.color, marginBottom:4}}>{domain.label}</div>
+                    {active.map(cond=>(
+                      <div key={cond.code} onClick={()=>setDetailCC(detailCC===cond.code?null:cond.code)}
+                        style={{display:"flex", alignItems:"center", gap:8, padding: isMobile?"9px 10px":"4px 7px", marginBottom:3, borderRadius:4, background:T.activeBg(domain.color), border:`1px solid ${T.activeBorder(domain.color)}`, cursor:"pointer", minHeight: isMobile?44:undefined}}>
+                        <span style={{fontWeight:700, fontSize: isMobile?12:10, color:domain.color}}>{cond.code}</span>
+                        <span style={{fontSize: isMobile?11:10, color:T.txtDim, flex:1}}>{cond.label}</span>
+                        <span style={S.dclBadge(cond.dcl)}>+{cond.dcl}</span>
+                        <span style={S.clsBadge(cond.cls.includes("MCC"))}>{cond.cls}</span>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* CODE SUMMARY TAB */}
+          {tab==="summary"&&primary&&(
+            <div style={{background:T.summaryBg, border:`1px solid ${T.summaryBorder}`, borderRadius:7, padding:"12px 14px"}}>
+              <div style={{fontSize: isMobile?10:9, color:T.txtFnt, marginBottom:8, letterSpacing:"0.5px"}}>DISCHARGE CODING BLOCK</div>
+              <div style={{fontSize: isMobile?12:11, marginBottom:5}}>
+                <span style={{color:T.txtFnt}}>Principal Dx: </span>
+                <span style={{fontWeight:700, color:primary.color}}>{primary.code}</span>
+                <span style={{color:T.txtDim}}> — {primary.label}</span>
+              </div>
+              {ccSel.length>0&&<>
+                <div style={{borderTop:`1px solid ${T.divider}`, margin:"7px 0"}}/>
+                {CC_DOMAINS.map(domain=>domain.conditions.filter(c=>ccSel.includes(c.code)).map(cond=>(
+                  <div key={cond.code} style={{fontSize: isMobile?12:11, marginBottom:4, display:"flex", alignItems:"center", gap:7, flexWrap:"wrap"}}>
+                    <span style={{color:T.txtFnt}}>SDx: </span>
+                    <span style={{fontWeight:700, color:domain.color}}>{cond.code}</span>
+                    <span style={{color:T.txtDim, flex:1}}>{cond.label}</span>
+                    <span style={S.dclBadge(cond.dcl)}>DCL {cond.dcl}</span>
+                  </div>
+                )))}
+              </>}
+              {drg&&drgInfo&&(
+                <div style={{marginTop:10, padding:"10px 12px", background:T.cardBg(drgInfo.color), borderRadius:5, border:`1px solid ${T.cardBorder(drgInfo.color)}`}}>
+                  <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:8}}>
+                    <div>
+                      <span style={{fontSize: isMobile?10:9, color:T.txtFnt}}>DRG </span>
+                      <span style={{fontSize: isMobile?22:18, fontWeight:700, color:drgInfo.color, letterSpacing:1}}>{drg}</span>
+                      <div style={{fontSize: isMobile?11:10, color:T.txtMut, marginTop:2}}>{drgInfo.label}</div>
+                    </div>
+                    <div style={{textAlign:"right", fontSize: isMobile?11:9, color:T.txtFnt}}>
+                      <div>PCL <span style={{color:T.txt, fontWeight:700}}>{pcl}</span>/9</div>
+                      <div>RW <span style={{color:T.txt, fontWeight:700}}>{drgInfo.rw}</span></div>
+                      <div>WtLOS <span style={{color:T.txtSub}}>{drgInfo.wtlos}d</span></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {primary.warning&&<div style={{marginTop:8, fontSize: isMobile?10:9, color:"#ff4757"}}>⚠️ CODING GAP — I509 has lowest DRG weight</div>}
+            </div>
+          )}
+
+          {/* KEY CONTEXT TAB */}
+          {tab==="context"&&(
+            <div>
+              <div style={{fontSize: isMobile?12:10, color:T.txtFnt, marginBottom:10, lineHeight:1.6}}>
+                ประโยคสำคัญที่ควรเขียนใน Progress Note เพื่อรองรับการ coding
+                <span style={{color:"#4da6ff"}}> — mixed Thai/English documentation templates</span>
+              </div>
+
+              <div style={{marginBottom:14}}>
+                <div style={{fontSize: isMobile?12:10, fontWeight:700, color:"#00d4a0", marginBottom:8, letterSpacing:"0.4px"}}>PRINCIPAL DX — Heart Failure</div>
+                {[
+                  { code:"I110/I130/I132", color:"#00d4a0",
+                    th:"โรคหัวใจจากความดันโลหิตสูง (HT duration ≥_ปี) ร่วมกับ HF (EF ___%) + [CKD eGFR ___] ได้รับ [ยา] ติดตาม BP",
+                    en:"Hypertensive HD with HF (EF ___%) — HT ≥_ years, [CKD eGFR ___], on [ACEI/ARB/BB] continued",
+                    tip:"Use I110/I130/I132 when HT is the cause of HF — avoids dual-coding I500+I10" },
+                  { code:"I500 / I501", color:"#4da6ff",
+                    th:"Heart failure [systolic EF ___% / diastolic EF ≥50%] — BNP/NT-proBNP [ค่า], ได้รับ furosemide IV [dose], น้ำลดลง [X] kg",
+                    en:"[HFrEF EF ___% / HFpEF EF≥50%] — BNP/NTproBNP [value], IV furosemide [dose], fluid loss [X] kg",
+                    tip:"Always document EF, BNP value, and diuretic response" },
+                  { code:"R570 Cardiogenic shock", color:"#ff9f43",
+                    th:"Cardiogenic shock — SBP <90 mmHg ร่วมกับ [cold periphery/poor UO/AMS] ได้รับ vasopressor [noradrenaline/dopamine] [dose]",
+                    en:"Cardiogenic shock — SBP <90 mmHg with [cold extremities/oliguria/AMS], vasopressor [drug/dose] initiated",
+                    tip:"Must explicitly write 'cardiogenic shock' — do not leave as implication" },
+                ].map((item,i)=>(
+                  <div key={i} style={S.kwBox(item.color)}>
+                    <div style={{display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:4,marginBottom:6}}>
+                      <span style={{fontSize: isMobile?11:9, fontWeight:700, color:item.color}}>{item.code}</span>
+                      <span style={{fontSize: isMobile?10:8, color:"#ffd93d"}}>💡 {item.tip}</span>
+                    </div>
+                    <div style={{fontSize: isMobile?10:9, color:T.txtMut, marginBottom:2}}>TH</div>
+                    <div style={{fontSize: isMobile?11:10, color:T.codeUnsel, marginBottom:8, lineHeight:1.7}}>{item.th}</div>
+                    <div style={{fontSize: isMobile?10:9, color:T.txtMut, marginBottom:2}}>EN</div>
+                    <div style={{fontSize: isMobile?11:10, color:T.txtSub, lineHeight:1.7}}>{item.en}</div>
+                  </div>
+                ))}
+              </div>
+
+              {CC_DOMAINS.map(domain=>(
+                <div key={domain.id} style={{marginBottom:14}}>
+                  <div style={{fontSize: isMobile?12:10, fontWeight:700, color:domain.color, marginBottom:8, letterSpacing:"0.4px"}}>{domain.label.toUpperCase()}</div>
+                  {domain.conditions.map(cond=>(
+                    <div key={cond.code} style={{marginBottom:10}}>
+                      <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap",marginBottom:5}}>
+                        <span style={{fontWeight:700, fontSize: isMobile?12:10, color:domain.color}}>{cond.code}</span>
+                        <span style={S.dclBadge(cond.dcl)}>DCL {cond.dcl} · {DCL_META[cond.dcl]?.label}</span>
+                        <span style={{fontSize: isMobile?11:9, color:T.txtDim}}>{cond.label}</span>
+                      </div>
+                      {cond.key_context?.map((kw,i)=>(
+                        <div key={i} style={S.kwBox(domain.color)}>
+                          <div style={{fontSize: isMobile?10:9, color:T.txtMut, marginBottom:2}}>TH</div>
+                          <div style={{fontSize: isMobile?11:10, color:T.codeUnsel, marginBottom:6, lineHeight:1.7}}>{kw.th}</div>
+                          <div style={{fontSize: isMobile?10:9, color:T.txtMut, marginBottom:2}}>EN</div>
+                          <div style={{fontSize: isMobile?11:10, color:T.txtSub, lineHeight:1.7}}>{kw.en}</div>
+                        </div>
+                      ))}
+                      <div style={S.anchor(domain.color,false)}>
+                        <div style={{fontSize: isMobile?10:9, color:T.txtFnt, marginBottom:2}}>ANCHOR</div>
+                        <div style={{fontSize: isMobile?11:10, color:T.txt, lineHeight:1.5}}>{cond.anchor}</div>
+                      </div>
+                      {cond.omission&&(
+                        <div style={{marginTop:6, padding:"5px 9px", background:T.omissionBg, borderRadius:4, borderLeft:`2px solid ${T.omissionBorder2}`}}>
+                          <span style={{fontSize: isMobile?10:9, color:"#ff4757"}}>⚠️ omission: </span>
+                          <span style={{fontSize: isMobile?10:9, color:T.txtMut}}>{cond.omission}</span>
+                        </div>
+                      )}
+                      {cond.note&&<div style={{marginTop:5, fontSize: isMobile?10:9, color:"#ffd93d"}}>💡 {cond.note}</div>}
+                    </div>
+                  ))}
+                </div>
+              ))}
+
+              <div style={{marginBottom:14}}>
+                <div style={{fontSize: isMobile?12:10, fontWeight:700, color:"#a29bfe", marginBottom:8, letterSpacing:"0.4px"}}>PCL BREAKPOINTS — DRG IMPACT</div>
+                {Object.entries(DRG_TABLE).map(([dc,info])=>(
+                  <div key={dc} style={{display:"flex", alignItems:"center", gap:10, padding: isMobile?"9px 10px":"5px 8px", marginBottom:4, borderRadius:4, background:T.kwBg(info.color), border:`1px solid ${T.kwBorder(info.color)}`, flexWrap:"wrap"}}>
+                    <span style={{fontWeight:700, fontSize: isMobile?13:11, color:info.color, minWidth:55}}>{dc}</span>
+                    <span style={{fontSize: isMobile?11:9, color:T.txtDim, flex:1}}>{info.label}</span>
+                    <span style={{fontSize: isMobile?10:9, color:T.txtFnt}}>RW <span style={{color:T.txt, fontWeight:700}}>{info.rw}</span></span>
+                    <span style={{fontSize: isMobile?10:9, color:T.txtFnt}}>WtLOS <span style={{color:T.txtSub}}>{info.wtlos}d</span></span>
+                  </div>
+                ))}
+                <div style={{marginTop:8, fontSize: isMobile?11:9, color:T.txtFnt, padding:"8px 10px", background:T.pclNoteBg, borderRadius:4, lineHeight:1.8}}>
+                  PCL = ผลรวม DCL จาก secondary diagnoses ที่ได้รับการรักษา (cap ที่ 9)<br/>
+                  การเพิ่ม CC ที่ DCL 2 (moderate) 2 ตัว ยกระดับจาก 05550 (RW 0.68) → 05551 (RW 1.33)
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+
+      return (
+        <div style={S.page}>
+
+          {/* ── HEADER ─────────────────────────────────────────────────────── */}
+          <div style={S.header}>
+            <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", gap:8, marginBottom: isMobile?8:10}}>
+              <div style={{display:"flex", alignItems:"center", gap:10}}>
+                <div style={{width:30,height:30,borderRadius:6,background:"linear-gradient(135deg,#4da6ff,#ff6b9d)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15}}>🫀</div>
+                <div>
+                  <div style={{fontSize:isMobile?14:13, fontWeight:700, color:"#fff"}}>
+                    {isMobile?"HF Coder":"Heart Failure Coder "}
+                    <span style={{color:"#4da6ff"}}>DC 0555</span>
+                  </div>
+                  <div style={{fontSize:isMobile?9:9, color:"#334155"}}>TDRG v6.3.3 · MDC05</div>
+                </div>
+              </div>
+              {/* Right side: DRG badge (mobile) + theme toggle */}
+              <div style={{display:"flex", alignItems:"center", gap:8, flexShrink:0}}>
+                {isMobile && drg && drgInfo && (
+                  <div style={{textAlign:"right"}}>
+                    <div style={{fontSize:18, fontWeight:700, color:drgInfo.color, letterSpacing:1}}>{drg}</div>
+                    <div style={{fontSize:9, color:"#64748b"}}>PCL {pcl}/9 · RW {drgInfo.rw}</div>
+                  </div>
+                )}
+                <button onClick={()=>setDark(d=>!d)} title={dark?"Switch to light mode":"Switch to dark mode"}
+                  style={{background:T.toggleBg, border:`1px solid ${T.toggleBorder}`, borderRadius:6,
+                          padding:"5px 8px", cursor:"pointer", color:"#94a3b8", fontSize:14,
+                          lineHeight:1, flexShrink:0, fontFamily:"inherit"}}>
+                  {dark?"☀️":"🌙"}
+                </button>
+              </div>
+            </div>
+            {/* TAB BAR */}
+            <div style={{display:"flex", gap: isMobile?0:2, overflowX:"auto"}}>
+              {TABS.map(([id,lbl])=>(
+                <button key={id} onClick={()=>setTab(id)} style={S.pill("#4da6ff",tab===id)}>{lbl}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── BODY ───────────────────────────────────────────────────────── */}
+          <div style={{display:"flex", flex:1, overflow: isMobile?"visible":"hidden", flexDirection: isMobile?"column":"row"}}>
+            {showLeft  && <SelectorPanel />}
+            {showRight && <DetailPanel />}
+          </div>
+
+          {/* ── MOBILE BOTTOM BAR ──────────────────────────────────────────── */}
+          {showBottomBar && (
+            <div style={{
+              position:"fixed", bottom:0, left:0, right:0, zIndex:200,
+              background:T.bottomBar,
+              borderTop:`1px solid ${T.bottomBarBorderFn(drgInfo?.color)}`,
+              padding:"8px 16px 10px",
+              display:"flex", alignItems:"center", justifyContent:"space-between",
+              backdropFilter:"blur(8px)", WebkitBackdropFilter:"blur(8px)",
+            }}>
+              <div>
+                {selPrimary && (
+                  <div style={{fontSize:12, fontWeight:700, color:primary?.color}}>{selPrimary}
+                    <span style={{fontSize:10, color:T.txtDim, fontWeight:400}}> — {primary?.label}</span>
+                  </div>
+                )}
+                {ccSel.length>0 && (
+                  <div style={{fontSize:10, color:T.txtMut, marginTop:2}}>
+                    {ccSel.length} CC · PCL <span style={{color:T.txt, fontWeight:700}}>{pcl}</span>/9
+                    {mccCount>0&&<span style={{color:"#ff6b9d",marginLeft:6}}>+{mccCount} MCC</span>}
+                  </div>
+                )}
+              </div>
+              <div style={{textAlign:"right", flexShrink:0}}>
+                {drg && drgInfo ? (
+                  <>
+                    <div style={{fontSize:22, fontWeight:700, color:drgInfo.color, letterSpacing:1, lineHeight:1}}>{drg}</div>
+                    <div style={{fontSize:9, color:T.txtMut, marginTop:2}}>RW {drgInfo.rw} · {drgInfo.label}</div>
+                  </>
+                ) : (
+                  <div style={{fontSize:10, color:T.txtFnt}}>เลือก PDx</div>
+                )}
+              </div>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
