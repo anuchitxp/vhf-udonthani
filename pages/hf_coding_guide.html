@@ -19,9 +19,77 @@
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+    /* ========== SITE NAV (Virtual-HF Network) ========== */
+    .vhf-nav {
+      position: sticky; top: 0; z-index: 300;
+      background: #0D2B55;
+      box-shadow: 0 2px 8px rgba(13,43,85,0.35);
+      font-family: 'Sarabun', sans-serif;
+    }
+    .vhf-nav-inner {
+      max-width: 960px; margin: 0 auto;
+      display: flex; align-items: center;
+      padding: 0 20px; height: 52px; gap: 8px;
+    }
+    .vhf-brand {
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none; flex-shrink: 0;
+    }
+    .vhf-brand-icon {
+      width: 28px; height: 28px; background: #1A73E8; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+    }
+    .vhf-brand-text { font-size: 14px; font-weight: 700; color: #fff; line-height: 1.2; }
+    .vhf-brand-sub  { font-size: 10px; color: rgba(255,255,255,0.55); font-weight: 400; }
+    .vhf-links { display: flex; list-style: none; gap: 2px; margin-left: auto; }
+    .vhf-links a {
+      display: block; color: rgba(255,255,255,0.7); text-decoration: none;
+      font-size: 13px; font-weight: 500; padding: 6px 10px; border-radius: 5px;
+      transition: background 0.15s, color 0.15s; white-space: nowrap;
+    }
+    .vhf-links a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .vhf-links a.active { background: #1A73E8; color: #fff; }
+    .vhf-toggle {
+      display: none; background: none; border: none;
+      color: white; font-size: 20px; cursor: pointer; padding: 4px 8px; margin-left: auto;
+    }
+    @media (max-width: 600px) {
+      .vhf-toggle { display: block; }
+      .vhf-links {
+        display: none; position: absolute; top: 52px; left: 0; right: 0;
+        background: #0D2B55; flex-direction: column;
+        padding: 8px 16px 16px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      }
+      .vhf-links.open { display: flex; }
+      .vhf-links a { padding: 10px 12px; font-size: 14px; }
+    }
+    /* ========== END SITE NAV ========== */
   </style>
 </head>
 <body>
+  <!-- ===== SITE NAV ===== -->
+  <nav class="vhf-nav">
+    <div class="vhf-nav-inner">
+      <a href="../index.html" class="vhf-brand">
+        <div class="vhf-brand-icon">🫀</div>
+        <div>
+          <div class="vhf-brand-text">Virtual-HF</div>
+          <div class="vhf-brand-sub">HF Network · จ.อุดรธานี</div>
+        </div>
+      </a>
+      <button class="vhf-toggle" onclick="this.nextElementSibling.classList.toggle('open')">☰</button>
+      <ul class="vhf-links">
+        <li><a href="../index.html">🏠 Virtual-HF</a></li>
+        <li><a href="standing-order.html">📋 Standing Order</a></li>
+        <li><a href="refer-back-protocol.html">🏥 Refer-Back Protocol</a></li>
+        <li><a href="hf_coding_guide.html" class="active">🧮 HF Coding</a></li>
+        <li><a href="acknowledgement.html">🌟 ขอบคุณ</a></li>
+      </ul>
+    </div>
+  </nav>
   <div id="root"></div>
 
   <script type="text/babel">
@@ -306,7 +374,7 @@
       };
 
       const S = {
-        page:    { minHeight:"100vh", background:T.bg, color:T.txt,
+        page:    { minHeight:"calc(100vh - 52px)", background:T.bg, color:T.txt,
                    fontFamily:"'Sarabun', sans-serif",
                    fontSize: isMobile ? 15 : 13, lineHeight: 1.65, display:"flex", flexDirection:"column" },
         header:  { background:T.hdrBg, borderBottom:`1px solid ${T.hdrBorder}`,
@@ -330,10 +398,10 @@
           ? { width:"100%", overflowY:"auto", padding:"10px 12px", paddingBottom: bottomPad }
           : { width:370, flexShrink:0, overflowY:"auto",
               borderRight:`1px solid ${T.borderRight}`,
-              padding:"10px 8px", height:"calc(100vh - 72px)" },
+              padding:"10px 8px", height:"calc(100vh - 124px)" },
         right:   isMobile
           ? { width:"100%", overflowY:"auto", padding:"12px 14px", paddingBottom: bottomPad }
-          : { flex:1, overflowY:"auto", padding:"12px 16px", height:"calc(100vh - 72px)" },
+          : { flex:1, overflowY:"auto", padding:"12px 16px", height:"calc(100vh - 124px)" },
         tierHdr: (c) => ({
           display:"flex", alignItems:"center", gap:5,
           padding: isMobile ? "11px 10px" : "5px 7px",
