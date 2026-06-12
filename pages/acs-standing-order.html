@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Standing Order — ACS · Virtual-HF</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sarabun', sans-serif;
+    background: #fff;
+    color: #1a2a3a;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 24px 40px;
+  }
+
+  /* Header */
+  .doc-header {
+    border-bottom: 2.5px solid #0D2B55;
+    padding-bottom: 12px;
+    margin-bottom: 18px;
+  }
+  .doc-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0D2B55;
+  }
+  .doc-sub {
+    font-size: 11px;
+    color: #4A6FA5;
+    margin-top: 3px;
+  }
+  .doc-meta {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .chip {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 12px;
+    border: 1px solid;
+  }
+  .chip-blue   { background: #EBF4FF; color: #1D5FA6; border-color: #B8D6F5; }
+  .chip-green  { background: #E8F7F2; color: #0A6648; border-color: #A8DFC8; }
+  .chip-red    { background: #FCEBEB; color: #A32D2D; border-color: #F09595; }
+  .chip-amber  { background: #FEF6E8; color: #7B4A08; border-color: #F5D99A; }
+
+  /* Alert boxes */
+  .alert {
+    padding: 9px 13px;
+    border-radius: 7px;
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 10px 0;
+    border: 1px solid;
+  }
+  .alert-blue  { background: #EBF4FF; border-color: #B8D6F5; color: #0D2B55; }
+  .alert-red   { background: #FCEBEB; border-color: #F09595; color: #7B1A1A; }
+  .alert-amber { background: #FEF6E8; border-color: #F5D99A; color: #7B4A08; }
+  .alert-green { background: #E8F7F2; border-color: #A8DFC8; color: #0A4A30; }
+  .alert b { font-weight: 700; }
+
+  /* Section blocks */
+  .day-block {
+    border: 1px solid #C8DCF2;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    break-inside: avoid;
+  }
+
+  .day-header {
+    padding: 8px 14px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* Section header colors */
+  .s-nstemi       { background: #185FA5; }
+  .s-stemi        { background: #8B1C1C; }
+  .s-fibrinolytic { background: #7B4A08; }
+  .s-maintenance  { background: #1A6648; }
+
+  .day-num  { font-size: 13px; font-weight: 700; color: #fff; }
+  .day-goal { font-size: 11px; color: rgba(255,255,255,0.65); }
+
+  /* Sections */
+  .sec {
+    padding: 10px 14px;
+    border-bottom: 1px solid #EEF3FA;
+  }
+  .sec:last-child { border-bottom: none; }
+
+  .sec-title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8FA3BF;
+    margin-bottom: 7px;
+  }
+
+  /* Order rows */
+  .row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 3px 0;
+    border-bottom: 0.5px dashed #E4EDF8;
+  }
+  .row:last-child { border-bottom: none; }
+
+  .box {
+    width: 13px;
+    height: 13px;
+    border: 1.5px solid #B8D6F5;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .box-red   { border-color: #F09595; }
+  .box-amber { border-color: #F5D99A; }
+
+  .txt { flex: 1; font-size: 12.5px; color: #1a2a3a; line-height: 1.5; }
+  .txt b { font-weight: 700; color: #0D2B55; }
+  .txt b.red { color: #8B1C1C; }
+
+  .tag {
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+  .tag-blue   { background: #EBF4FF; color: #1D5FA6; }
+  .tag-warn   { background: #FEF6E8; color: #A06210; }
+  .tag-danger { background: #FCEBEB; color: #A32D2D; }
+  .tag-ok     { background: #E8F7F2; color: #0A6648; }
+
+  /* Two-column layout */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .two-col .sec { border-right: 1px solid #EEF3FA; }
+  .two-col .sec:last-child { border-right: none; border-bottom: none; }
+
+  /* Summary bar */
+  .target-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: #C8DCF2;
+    border-top: 1px solid #C8DCF2;
+  }
+  .target-cell { background: #F3F8FF; padding: 7px 12px; }
+  .t-label { font-size: 10px; color: #8FA3BF; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+  .t-val   { font-size: 12px; font-weight: 700; color: #0D2B55; line-height: 1.4; }
+
+  /* Indent note */
+  .note-row {
+    padding: 4px 14px 4px 35px;
+    font-size: 11px;
+    color: #5B7A9D;
+    line-height: 1.6;
+    border-bottom: 0.5px dashed #E4EDF8;
+  }
+  .note-row:last-child { border-bottom: none; }
+
+  /* Footer */
+  .footnote {
+    text-align: center;
+    font-size: 10px;
+    color: #AAB8CC;
+    margin-top: 18px;
+    border-top: 1px solid #E8EEF6;
+    padding-top: 10px;
+    line-height: 1.8;
+  }
+
+  /* ===================== PRINT STYLES ===================== */
+  @media print {
+    @page { size: A4; margin: 15mm 14mm 15mm 14mm; }
+    body {
+      font-size: 11px;
+      background: #fff !important;
+      color: #000 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .page { padding: 0; max-width: 100%; }
+    .no-print { display: none !important; }
+    .day-block { break-inside: avoid; page-break-inside: avoid; }
+    .alert     { break-inside: avoid; }
+    .doc-header { break-after: avoid; }
+    .day-block  { margin-bottom: 10px; }
+    .sec        { padding: 8px 12px; }
+    .day-header { padding: 7px 12px; }
+
+    .s-nstemi       { background: #185FA5 !important; }
+    .s-stemi        { background: #8B1C1C !important; }
+    .s-fibrinolytic { background: #7B4A08 !important; }
+    .s-maintenance  { background: #1A6648 !important; }
+
+    .alert-blue  { background: #EBF4FF !important; }
+    .alert-red   { background: #FCEBEB !important; }
+    .alert-amber { background: #FEF6E8 !important; }
+    .alert-green { background: #E8F7F2 !important; }
+
+    .tag-blue   { background: #EBF4FF !important; }
+    .tag-warn   { background: #FEF6E8 !important; }
+    .tag-danger { background: #FCEBEB !important; }
+    .tag-ok     { background: #E8F7F2 !important; }
+
+    .target-cell  { background: #F3F8FF !important; }
+    .chip-blue    { background: #EBF4FF !important; }
+    .chip-green   { background: #E8F7F2 !important; }
+    .chip-red     { background: #FCEBEB !important; }
+    .chip-amber   { background: #FEF6E8 !important; }
+  }
+
+  /* Print button */
+  .print-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    padding: 9px 20px;
+    background: #0D2B55;
+    color: #fff;
+    font-family: 'Sarabun', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .print-btn:hover { background: #185FA5; }
+  @media print { .print-btn { display: none !important; } }
+
+/* ========== SITE NAV ========== */
+.vhf-nav {
+  position: sticky; top: 0; z-index: 200;
+  background: #0D2B55;
+  box-shadow: 0 2px 8px rgba(13,43,85,0.35);
+  font-family: 'Sarabun', sans-serif;
+}
+.vhf-nav-inner {
+  max-width: 960px; margin: 0 auto;
+  display: flex; align-items: center;
+  padding: 0 20px; height: 52px; gap: 8px;
+}
+.vhf-brand {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; flex-shrink: 0;
+}
+.vhf-brand-icon {
+  width: 28px; height: 28px; background: #1A73E8; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.vhf-brand-text { font-size: 14px; font-weight: 700; color: #fff; line-height: 1.2; }
+.vhf-brand-sub  { font-size: 10px; color: rgba(255,255,255,0.55); font-weight: 400; }
+.vhf-links { display: flex; list-style: none; gap: 2px; margin-left: auto; }
+.vhf-links a {
+  display: block; color: rgba(255,255,255,0.7); text-decoration: none;
+  font-size: 13px; font-weight: 500; padding: 6px 10px; border-radius: 5px;
+  transition: background 0.15s, color 0.15s; white-space: nowrap;
+}
+.vhf-links a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.vhf-links a.active { background: #1A73E8; color: #fff; }
+.vhf-toggle {
+  display: none; background: none; border: none;
+  color: white; font-size: 20px; cursor: pointer; padding: 4px 8px; margin-left: auto;
+}
+@media (max-width: 680px) {
+  .vhf-toggle { display: block; }
+  .vhf-links {
+    display: none; position: absolute; top: 52px; left: 0; right: 0;
+    background: #0D2B55; flex-direction: column;
+    padding: 8px 16px 16px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .vhf-links.open { display: flex; }
+  .vhf-links a { padding: 10px 12px; font-size: 14px; }
+}
+/* ========== END SITE NAV ========== */
+</style>
+</head>
+<body>
+
+<!-- ===== SITE NAV ===== -->
+<nav class="vhf-nav">
+  <div class="vhf-nav-inner">
+    <a href="../index.html" class="vhf-brand">
+      <div class="vhf-brand-icon">🫀</div>
+      <div>
+        <div class="vhf-brand-text">Virtual-HF</div>
+        <div class="vhf-brand-sub">HF Network · จ.อุดรธานี</div>
+      </div>
+    </a>
+    <button class="vhf-toggle" onclick="this.nextElementSibling.classList.toggle('open')">☰</button>
+    <ul class="vhf-links">
+      <li><a href="../index.html">🏠 Virtual-HF</a></li>
+      <li><a href="standing-order.html">📋 Standing Order</a></li>
+      <li><a href="acs-standing-order.html" class="active">❤️ ACS Order</a></li>
+      <li><a href="refer-back-protocol.html">🏥 Refer-Back Protocol</a></li>
+      <li><a href="hf_coding_guide.html">🧮 HF Coding</a></li>
+      <li><a href="acknowledgement.html">🌟 ขอบคุณ</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="page">
+
+  <button class="print-btn no-print" onclick="window.print()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+      <rect x="6" y="14" width="12" height="8"/>
+    </svg>
+    พิมพ์ / Print (A4)
+  </button>
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div class="doc-title">Standing Order — ACS · แนวทางเวชปฏิบัติการดูแลผู้ป่วย Acute Coronary Syndrome</div>
+    <div class="doc-sub">สำหรับแพทย์จบใหม่ · อ้างอิงจาก Standing Orders โรงพยาบาลอุดรธานี อัปเดตล่าสุด 12 มิถุนายน 2026</div>
+    <div class="doc-meta">
+      <span class="chip chip-blue">NSTEMI</span>
+      <span class="chip chip-red">STEMI (Primary PCI)</span>
+      <span class="chip chip-amber">STEMI (Post-Fibrinolytic)</span>
+      <span class="chip chip-green">Maintenance Orders</span>
+      <span style="margin-left:auto; font-size:10px; color:#8FA3BF;">
+        HN: _____________ &nbsp; วันที่: _____________
+      </span>
+    </div>
+  </div>
+
+  <div class="alert alert-blue">
+    <b>ภาพรวม:</b> แนวทางนี้ครอบคลุมผู้ป่วย ACS ทั้ง 3 กลุ่ม ได้แก่ <b>NSTEMI · STEMI (Primary PCI)</b> และ <b>STEMI (Post-Fibrinolytic)</b>
+    พร้อม Maintenance Orders สำหรับทุกกลุ่ม · ควรประสาน Staff Cardiologist ตามข้อบ่งชี้ที่ระบุในแต่ละกลุ่ม
+  </div>
+
+  <!-- ======================================================
+       SECTION 1 : NSTEMI
+       ====================================================== -->
+  <div class="day-block">
+    <div class="day-header s-nstemi">
+      <span class="day-num">1. กลุ่ม NSTEMI — Non-ST-Elevation Myocardial Infarction</span>
+    </div>
+
+    <!-- Consultation -->
+    <div class="sec">
+      <div class="sec-title">การประเมินและการรายงานแพทย์เฉพาะทาง (Consultation)</div>
+      <div class="row">
+        <div class="box box-red"></div>
+        <div class="txt">
+          <b>Consult Staff Cardiologist ที่ ER เฉพาะ Very High Risk NSTEMI เท่านั้น</b> ซึ่งได้แก่ผู้ป่วยที่มี:
+          Cardiogenic shock, Malignant arrhythmia, Suspected cardiovascular complication
+          <b>หรือ</b> EKG พบ AVR elevation ร่วมกับ diffuse ST depression &gt; 6 leads
+        </div>
+        <div class="tag tag-danger">Very High Risk</div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">สั่งเจาะ <b>Repeat Troponin I ที่ 3 ชั่วโมง</b> หลังจากเจาะรอบแรก</div>
+        <div class="tag tag-blue">Serial Trop</div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">ประเมินคะแนน <b>Grace Risk Score</b> เสมอ</div>
+        <div class="tag tag-blue">Risk Score</div>
+      </div>
+    </div>
+
+    <!-- Antiplatelet -->
+    <div class="sec">
+      <div class="sec-title">ยาต้านเกล็ดเลือด (Antiplatelet Loading)</div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt"><b>ASA (300 mg) 1 เม็ด</b> รับประทาน</div>
+        <div class="tag tag-ok">ให้ทันที</div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">เลือกใช้ <b>Potent P2Y12 inhibitor</b> เป็นตัวเลือกแรก (เลือก 1 ชนิด):</div>
+      </div>
+      <div class="note-row">▸ <b>Ticagrelor (90 mg)</b> จำนวน 2 เม็ด</div>
+      <div class="note-row">▸ <b>Prasugrel (10 mg)</b> จำนวน 6 เม็ด</div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">หากมี<b>ข้อห้าม</b>ยากลุ่ม Potent P2Y12 → ใช้ <b>Clopidogrel (75 mg) 8 เม็ด</b></div>
+        <div class="tag tag-warn">Alternative</div>
+      </div>
+    </div>
+
+    <!-- Contraindications -->
+    <div class="sec">
+      <div class="sec-title">ข้อห้ามเด็ดขาดสำหรับ Potent P2Y12 Inhibitor</div>
+      <div class="row"><div class="box box-red"></div><div class="txt">ประวัติเลือดออกในสมอง (ICH)</div><div class="tag tag-danger">ห้ามใช้</div></div>
+      <div class="row"><div class="box box-red"></div><div class="txt">ภาวะตับบกพร่องระดับ Child-Pugh C</div><div class="tag tag-danger">ห้ามใช้</div></div>
+      <div class="row"><div class="box box-red"></div><div class="txt">มีประวัติทาน Anticoagulant อยู่เดิม</div><div class="tag tag-danger">ห้ามใช้</div></div>
+      <div class="row"><div class="box box-red"></div><div class="txt">ประวัติเส้นเลือดสมองตีบ / TIA <span style="color:#5B7A9D;font-size:11px;">(ข้อห้ามเฉพาะ Prasugrel)</span></div><div class="tag tag-danger">Prasugrel only</div></div>
+    </div>
+
+    <!-- Enoxaparin -->
+    <div class="sec">
+      <div class="sec-title">ยาต้านการแข็งตัวของเลือด — Enoxaparin</div>
+      <div class="row"><div class="box"></div><div class="txt">อายุ <b>≥ 75 ปี:</b> ฉีด <b>1 mg/kg</b></div></div>
+      <div class="row"><div class="box"></div><div class="txt">อายุ <b>&lt; 75 ปี:</b> ฉีด <b>0.75 mg/kg</b></div></div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">
+          ระยะเวลา (Interval): CrCl <b>≥ 30 ml/min</b> → ทุก 12 ชั่วโมง &nbsp;|&nbsp;
+          CrCl <b>10–30 ml/min</b> → ปรับเป็น <b>OD</b> (วันละครั้ง)
+        </div>
+      </div>
+      <div class="alert alert-amber" style="margin-top:8px;">
+        <b>หมายเหตุ:</b> ขนาดยา Enoxaparin ข้างต้นระบุตามเอกสาร Standing Orders ของกลุ่ม NSTEMI โรงพยาบาลอุดรธานี
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       SECTION 2 : STEMI (Primary PCI)
+       ====================================================== -->
+  <div class="day-block">
+    <div class="day-header s-stemi">
+      <span class="day-num">2. กลุ่ม STEMI / STEMI Equivalent — เตรียมทำ Primary PCI</span>
+    </div>
+
+    <!-- STEMI Equivalent -->
+    <div class="sec">
+      <div class="sec-title">การวินิจฉัย STEMI Equivalent — ต้องจัดเป็น STEMI ทันที หากมีอาการ Typical Chest Pain ร่วมกับ:</div>
+      <div class="row"><div class="box box-red"></div><div class="txt">พบ <b>new LBBB หรือ new RBBB</b></div><div class="tag tag-danger">STEMI equiv.</div></div>
+      <div class="row"><div class="box box-red"></div><div class="txt">สงสัย <b>Posterior wall MI</b> — EKG พบ Tall R ร่วมกับ ST depression ใน leads V1–V2</div><div class="tag tag-danger">STEMI equiv.</div></div>
+      <div class="row"><div class="box box-red"></div><div class="txt">พบ <b>AVR elevation</b> ร่วมกับ diffuse ST depression &gt; 6 leads</div><div class="tag tag-danger">STEMI equiv.</div></div>
+    </div>
+
+    <!-- Assessment -->
+    <div class="sec">
+      <div class="sec-title">การประเมินและจัดการเบื้องต้น</div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">หากสงสัย <b>Inferior wall STEMI</b> → ทำ EKG เพิ่มเติม <b>V3R และ V4R</b> เสมอ</div>
+        <div class="tag tag-warn">เพิ่ม Lead</div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">
+          <b>IV Load ใน 15 นาที:</b>
+          Anterior wall STEMI → <b>0.5–1 ลิตร</b> &nbsp;|&nbsp;
+          Inferior wall STEMI + RV infarction → <b>1–2 ลิตร</b>
+        </div>
+        <div class="tag tag-blue">IV Fluid</div>
+      </div>
+      <div class="row">
+        <div class="box box-red"></div>
+        <div class="txt"><b>Consult Cardio ที่ ER ทันที</b> — ทุกราย</div>
+        <div class="tag tag-danger">Consult ด่วน</div>
+      </div>
+    </div>
+
+    <!-- Antiplatelet -->
+    <div class="sec">
+      <div class="sec-title">ยาต้านเกล็ดเลือด (Antiplatelet Loading)</div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt"><b>เคี้ยว ASA (300 mg) 1 เม็ด ทันที</b></div>
+        <div class="tag tag-ok">ให้ก่อนเลย</div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">เลือก <b>Potent P2Y12 inhibitor</b> เป็นอันดับแรก (Ticagrelor 2 เม็ด หรือ Prasugrel 6 เม็ด)</div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">
+          หากมีข้อห้ามเด็ดขาด (ICH, Child-Pugh C, ทาน Anticoagulant, TIA/Stroke สำหรับ Prasugrel)
+          → ใช้ <b>Clopidogrel (75 mg) 8 เม็ด</b>
+        </div>
+        <div class="tag tag-warn">Alternative</div>
+      </div>
+    </div>
+
+    <div class="alert alert-red" style="margin:10px 14px;">
+      <b>เป้าหมาย Door-to-Balloon Time &lt; 90 นาที</b> · ประสาน Cath lab ทันทีที่วินิจฉัย STEMI — อย่าให้ขั้นตอนการให้ยาล่าช้าการทำ PCI
+    </div>
+  </div>
+
+  <!-- ======================================================
+       SECTION 3 : STEMI Post-Fibrinolytic
+       ====================================================== -->
+  <div class="day-block">
+    <div class="day-header s-fibrinolytic">
+      <span class="day-num">3. กลุ่ม STEMI หลังได้รับยาละลายลิ่มเลือด (Post-Fibrinolytic)</span>
+    </div>
+
+    <!-- Monitoring fibrinolytic -->
+    <div class="sec">
+      <div class="sec-title">การติดตามผลยาละลายลิ่มเลือด (Fibrinolytic)</div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">ทำ <b>EKG ที่ 30 นาที และ 60 นาที</b> หลังให้ยาหมด เพื่อประเมินผล</div>
+        <div class="tag tag-warn">Serial EKG</div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">
+          <b class="ok" style="color:#0A6648;">Successful Fibrinolytic:</b>
+          ST elevation ลดลงจาก baseline <b>&gt; 50%</b>
+          → นัดทำ CAG ภายใน <b>24–48 ชั่วโมง</b> · ดูแลต่อที่หอผู้ป่วย
+        </div>
+        <div class="tag tag-ok">ผลดี</div>
+      </div>
+      <div class="row">
+        <div class="box box-red"></div>
+        <div class="txt">
+          <b class="red">Failed Fibrinolytic:</b>
+          ST elevation ลดลงจาก baseline <b>&lt; 50%</b>
+          → รีบประสาน <b>Cath lab เพื่อทำ Rescue PCI ทันที</b>
+        </div>
+        <div class="tag tag-danger">Rescue PCI</div>
+      </div>
+    </div>
+
+    <!-- Antiplatelet -->
+    <div class="sec">
+      <div class="sec-title">ยาต้านเกล็ดเลือด (Antiplatelet Loading)</div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt"><b>เคี้ยว ASA (300 mg) 1 เม็ด ทันที</b></div>
+        <div class="tag tag-ok">ให้ทันที</div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">
+          <b>Clopidogrel (75 mg)</b> — พิจารณาตามอายุ:
+        </div>
+      </div>
+      <div class="note-row">▸ อายุ <b>&lt; 75 ปี:</b> ให้ <b>4 เม็ด (300 mg)</b> ทันที</div>
+      <div class="note-row">▸ อายุ <b>≥ 75 ปี:</b> ให้ <b>1 เม็ด (75 mg)</b> ทันที</div>
+    </div>
+
+    <!-- Enoxaparin -->
+    <div class="sec">
+      <div class="sec-title">ยาต้านการแข็งตัวของเลือด — Enoxaparin</div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">
+          <b>ระยะเวลาเริ่มยา:</b>
+          ยา <b>SK</b> → เริ่มฉีดหลังให้ยาครบ <b>12 ชั่วโมง</b> &nbsp;|&nbsp;
+          ยา <b>rTPA หรือ TNK</b> → เริ่มฉีด<b>ทันที</b>หลังให้ยาครบ
+        </div>
+        <div class="tag tag-warn">Timing</div>
+      </div>
+      <div class="row"><div class="box"></div><div class="txt">อายุ <b>&lt; 75 ปี:</b> ฉีด <b>1 mg/kg</b></div></div>
+      <div class="row"><div class="box"></div><div class="txt">อายุ <b>≥ 75 ปี:</b> ฉีด <b>0.75 mg/kg</b></div></div>
+      <div class="row">
+        <div class="box box-amber"></div>
+        <div class="txt">ข้อควรระวัง: CrCl <b>10–30 ml/min</b> → ปรับระยะเวลาเป็น <b>ทุก 24 ชั่วโมง</b></div>
+        <div class="tag tag-warn">Renal Adj.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       SECTION 4 : MAINTENANCE ORDERS (ทุกกลุ่ม)
+       ====================================================== -->
+  <div class="day-block">
+    <div class="day-header s-maintenance">
+      <span class="day-num">4. จุดปฏิบัติทั่วไปและยาต่อเนื่อง (Maintenance Orders)</span>
+      <span class="day-goal">สำหรับผู้ป่วย ACS ทุกกลุ่ม</span>
+    </div>
+
+    <!-- DTx -->
+    <div class="sec">
+      <div class="sec-title">การติดตามระดับน้ำตาลในเลือด (DTx)</div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">เป้าหมาย <b>80–180 mg%</b></div>
+        <div class="tag tag-blue">Target</div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">ผู้ป่วย <b>NPO</b> → เจาะทุก <b>6 ชั่วโมง</b></div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">ผู้ป่วยรับประทานอาหารได้ → เจาะ <b>premeal และ hs</b></div>
+      </div>
+    </div>
+
+    <!-- Maintenance Medications -->
+    <div class="sec">
+      <div class="sec-title">ยา Maintenance Dose</div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt"><b>ASA (81 mg)</b> 1 เม็ด PO OD</div>
+        <div class="tag tag-ok">ทุกราย</div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">ยาต้านเกล็ดเลือดตัวที่สอง (ตามที่ Loading ไป):</div>
+      </div>
+      <div class="note-row">▸ <b>Clopidogrel (75 mg)</b> 1 เม็ด PO OD</div>
+      <div class="note-row">▸ <b>Ticagrelor (90 mg)</b> 1 เม็ด PO BID หลังอาหาร</div>
+      <div class="note-row">▸ <b>Prasugrel (10 mg)</b> 1 เม็ด PO OD หลังอาหาร</div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt"><b>Atorvastatin (40 mg)</b> 1 เม็ด PO ก่อนนอน</div>
+        <div class="tag tag-ok">ทุกราย</div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt">
+          <b>Omeprazole:</b> 20 mg PO OD
+          <span style="color:#5B7A9D;font-size:11px;">(หรือ 40 mg IV OD ในกลุ่ม Post-Fibrinolytic)</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt"><b>Senokot 2 เม็ด</b> PO ก่อนนอน <span style="color:#5B7A9D;font-size:11px;">(งดหากถ่ายเหลวเกิน 3 ครั้ง)</span></div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt"><b>Ativan / Lorazepam (0.5 mg)</b> 1 เม็ด PO ก่อนนอน</div>
+      </div>
+      <div class="row">
+        <div class="box"></div>
+        <div class="txt"><b>ISDN (5 mg)</b> 1 เม็ด อมใต้ลิ้น เวลาปวดหน้าอก</div>
+        <div class="tag tag-warn">PRN Pain</div>
+      </div>
+    </div>
+
+    <!-- General orders -->
+    <div class="sec">
+      <div class="sec-title">ข้อปฏิบัติทั่วไป</div>
+      <div class="row"><div class="box"></div><div class="txt"><b>Absolute bed rest</b></div></div>
+      <div class="row"><div class="box"></div><div class="txt">งดอาหาร / จำกัดโซเดียมตามความเหมาะสมในแต่ละช่วง</div></div>
+    </div>
+
+    <!-- Summary bar -->
+    <div class="target-bar">
+      <div class="target-cell">
+        <div class="t-label">Antiplatelet</div>
+        <div class="t-val">ASA + P2Y12 (DAPT)</div>
+      </div>
+      <div class="target-cell">
+        <div class="t-label">Statin</div>
+        <div class="t-val">Atorvastatin 40 mg ON</div>
+      </div>
+      <div class="target-cell">
+        <div class="t-label">DTx Target</div>
+        <div class="t-val">80–180 mg%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Reference Alert -->
+  <div class="alert alert-blue">
+    <b>อ้างอิง:</b>
+    [1] Standing Orders STEMI Post-Fibrinolytic · รพ.อุดรธานี &nbsp;
+    [2] Standing Orders STEMI Primary PCI · รพ.อุดรธานี &nbsp;
+    [3] Standing Orders NSTEMI · รพ.อุดรธานี &nbsp;
+    — อัปเดต 12 มิถุนายน 2026
+  </div>
+
+  <div class="footnote">
+    Standing Order นี้เป็นแนวทางเบื้องต้นสำหรับแพทย์จบใหม่ · ปรับตามสภาพผู้ป่วยและคำแนะนำ Cardiologist เสมอ<br>
+    Virtual-HF Network · <b>virtual-hf.web.app</b> · Improving Patient Care · Driven by Passion<br>
+    &copy; 2025–2026 Developed by Dr. Anuchit Wongphen
+  </div>
+
+</div>
+</body>
+</html>
