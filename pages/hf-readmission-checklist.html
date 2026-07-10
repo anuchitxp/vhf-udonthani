@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HF Re-admission Assessment — Virtual HF</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Sarabun', 'sans-serif'],
+        mono: ['IBM Plex Mono', 'monospace'],
+      },
+      colors: {
+        /* Remap Tailwind's teal scale to the Virtual-HF site blue
+           so every existing teal-* utility inherits the shared theme. */
+        teal: {
+          50:  '#EBF4FF',
+          100: '#DBEDFF',
+          200: '#C0D8F5',
+          300: '#B8D6F5',
+          400: '#4A90E2',
+          500: '#1A73E8',
+          600: '#1A73E8',
+          700: '#1558B0',
+          800: '#0D2B55',
+        },
+        brand: {
+          navy:    '#0D2B55',
+          blue:    '#1A73E8',
+          bluelt:  '#EBF4FF',
+          bluemd:  '#C0D8F5',
+          amber:   '#d97706',
+          amberlt: '#fffbeb',
+          ambermd: '#fde68a',
+          red:     '#dc2626',
+          redlt:   '#fef2f2',
+          redmd:   '#fecaca',
+          green:   '#16a34a',
+          greenlt: '#f0fdf4',
+          greenmd: '#bbf7d0',
+        }
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { font-family: 'Sarabun', sans-serif; }
+  .font-mono { font-family: 'IBM Plex Mono', monospace; }
+
+  /* ========== SITE NAV (Virtual-HF Network) ========== */
+  .vhf-nav {
+    position: sticky; top: 0; z-index: 200;
+    background: #0D2B55;
+    box-shadow: 0 2px 8px rgba(13,43,85,0.35);
+    font-family: 'Sarabun', sans-serif;
+  }
+  .vhf-nav-inner {
+    max-width: 960px; margin: 0 auto;
+    display: flex; align-items: center;
+    padding: 0 20px; height: 52px; gap: 8px;
+  }
+  .vhf-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; flex-shrink: 0; }
+  .vhf-brand-icon {
+    width: 28px; height: 28px; background: #1A73E8; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .vhf-brand-text { font-size: 14px; font-weight: 700; color: #fff; line-height: 1.2; }
+  .vhf-brand-sub  { font-size: 10px; color: rgba(255,255,255,0.55); font-weight: 400; }
+  .vhf-links { display: flex; list-style: none; gap: 2px; margin-left: auto; }
+  .vhf-links a {
+    display: block; color: rgba(255,255,255,0.7); text-decoration: none;
+    font-size: 13px; font-weight: 500; padding: 6px 10px; border-radius: 5px;
+    transition: background 0.15s, color 0.15s; white-space: nowrap;
+  }
+  .vhf-links a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .vhf-links a.active { background: #1A73E8; color: #fff; }
+  .vhf-toggle {
+    display: none; background: none; border: none;
+    color: white; font-size: 20px; cursor: pointer; padding: 4px 8px; margin-left: auto;
+  }
+  @media (max-width: 600px) {
+    .vhf-toggle { display: block; }
+    .vhf-links {
+      display: none; position: absolute; top: 52px; left: 0; right: 0;
+      background: #0D2B55; flex-direction: column;
+      padding: 8px 16px 16px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      gap: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .vhf-links.open { display: flex; }
+    .vhf-links a { padding: 10px 12px; font-size: 14px; }
+  }
+  @media print { .vhf-nav { display: none !important; } }
+  /* ========== END SITE NAV ========== */
+
+  /* Section accordion */
+  .section-body { display: none; }
+  .section.open .section-body { display: flex; }
+  .section.open .chevron { transform: rotate(180deg); }
+  .chevron { transition: transform .2s; display: inline-block; }
+
+  /* Progress bar fill */
+  .progress-fill { transition: width .3s ease; }
+
+  /* Checkbox custom */
+  .check-item input[type=checkbox] { display: none; }
+  .custom-cb {
+    width: 18px; height: 18px; min-width: 18px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 4px;
+    margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+    background: white;
+    flex-shrink: 0;
+  }
+  .check-item.checked .custom-cb {
+    background: #1A73E8; border-color: #1A73E8;
+  }
+  .custom-cb::after {
+    content: '';
+    display: none;
+    width: 5px; height: 9px;
+    border: 2px solid white;
+    border-top: none; border-left: none;
+    transform: rotate(45deg) translate(-1px, -1px);
+  }
+  .check-item.checked .custom-cb::after { display: block; }
+  .check-item.checked { background: #EBF4FF; border-color: #B8D6F5 !important; }
+  .check-item:hover:not(.checked) { background: #f8fafc; }
+
+  /* Tag */
+  .tag { cursor: pointer; user-select: none; transition: all .15s; }
+  .tag.selected { background: #fffbeb; border-color: #d97706; color: #92400e; }
+
+  /* GDMT toggle */
+  .toggle-btn button { cursor: pointer; transition: all .15s; border: none; font-family: inherit; }
+  .toggle-btn button.active-yes { background: #dcfce7; color: #166534; }
+  .toggle-btn button.active-no  { background: #fee2e2; color: #991b1b; }
+
+  /* Days badge */
+  .days-badge-early { background: #fee2e2; color: #991b1b; }
+  .days-badge-mid   { background: #fef3c7; color: #92400e; }
+  .days-badge-late  { background: #dcfce7; color: #166534; }
+
+  /* Section badge done */
+  .badge-done { background: #dcfce7; color: #166534; border-color: #86efac; }
+
+  @media print {
+    header { position: static; }
+    .no-print { display: none !important; }
+    .section-body { display: flex !important; }
+    .section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+<!-- ===== SITE NAV ===== -->
+<nav class="vhf-nav no-print">
+  <div class="vhf-nav-inner">
+    <a href="../index.html" class="vhf-brand">
+      <div class="vhf-brand-icon">🫀</div>
+      <div>
+        <div class="vhf-brand-text">Virtual-HF</div>
+        <div class="vhf-brand-sub">HF Network · จ.อุดรธานี</div>
+      </div>
+    </a>
+    <button class="vhf-toggle" onclick="this.nextElementSibling.classList.toggle('open')">☰</button>
+    <ul class="vhf-links">
+      <li><a href="../index.html">🏠 Virtual-HF</a></li>
+      <li><a href="standing-order.html">📋 Standing Order</a></li>
+      <li><a href="acs-standing-order.html">❤️ ACS Order</a></li>
+      <li><a href="refer-back-protocol.html">🏥 Refer-Back Protocol</a></li>
+      <li><a href="hf-readmission-checklist.html" class="active">🔁 Re-admission</a></li>
+      <li><a href="hf_coding_guide.html">🧮 HF Coding</a></li>
+      <li><a href="acknowledgement.html">🌟 ขอบคุณ</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- Header -->
+<header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center gap-4 sticky top-[52px] z-40 shadow-sm">
+  <span class="font-mono text-xs font-medium px-2.5 py-1 rounded border border-teal-600 text-teal-700 bg-teal-50 tracking-widest">Virtual-HF</span>
+  <h1 class="text-sm font-medium text-slate-700">
+    HF Re-admission Assessment
+    <span class="text-slate-400 font-light"> / ประเมินการกลับเข้ารักษาซ้ำ</span>
+  </h1>
+  <div class="ml-auto flex items-center gap-3 no-print">
+    <div class="w-36 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+      <div class="progress-fill h-full bg-teal-600 rounded-full w-0" id="progressFill"></div>
+    </div>
+    <span class="font-mono text-xs text-slate-400 min-w-[44px] text-right" id="progressLabel">0 / 0</span>
+  </div>
+</header>
+
+<main class="max-width-780 mx-auto px-4 pb-16 pt-6" style="max-width:780px">
+
+  <!-- Patient Banner -->
+  <div class="bg-white rounded-lg border border-slate-200 border-l-4 border-l-amber-400 p-5 mb-5 grid grid-cols-2 gap-x-6 gap-y-3">
+    <div class="col-span-2">
+      <p class="text-xs font-semibold text-amber-600 tracking-widest uppercase mb-1">▸ ข้อมูลผู้ป่วย</p>
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs text-slate-400 uppercase tracking-wider">ชื่อ–นามสกุล</label>
+      <input id="ptName" type="text" placeholder="กรอกชื่อผู้ป่วย"
+        class="border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-teal-500 bg-slate-50">
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs text-slate-400 uppercase tracking-wider">HN</label>
+      <input id="ptHN" type="text" placeholder="เลข HN"
+        class="border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-teal-500 bg-slate-50">
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs text-slate-400 uppercase tracking-wider">โรงพยาบาล</label>
+      <input id="ptHospital" type="text" placeholder="ชื่อ รพช."
+        class="border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-teal-500 bg-slate-50">
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs text-slate-400 uppercase tracking-wider">วันที่ประเมิน</label>
+      <input id="ptDate" type="date"
+        class="border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-teal-500 bg-slate-50">
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs text-slate-400 uppercase tracking-wider">ผู้ประเมิน</label>
+      <input id="ptStaff" type="text" placeholder="ชื่อพยาบาล/แพทย์"
+        class="border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-teal-500 bg-slate-50">
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-xs text-slate-400 uppercase tracking-wider">HF Phenotype ครั้งก่อน</label>
+      <select id="ptPhenotype" class="border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-teal-500 bg-slate-50">
+        <option value="">-- เลือก --</option>
+        <option>HFrEF</option><option>HFmrEF</option><option>HFpEF</option><option>ไม่ทราบ</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Days since discharge -->
+  <div class="bg-white rounded-lg border border-slate-200 px-4 py-3 mb-4 flex items-center gap-3">
+    <span class="text-sm text-slate-600 flex-1">ระยะเวลาตั้งแต่ Discharge ครั้งล่าสุด</span>
+    <input type="number" id="daysSince" min="0" max="365" placeholder="0" oninput="updateDaysBadge()"
+      class="border border-slate-200 rounded-md px-3 py-1.5 text-base font-mono font-medium w-20 text-center focus:outline-none focus:border-teal-500 bg-slate-50">
+    <span class="text-sm text-slate-400">วัน</span>
+    <span id="daysBadge" class="font-mono text-xs font-medium px-3 py-1 rounded-full min-w-[72px] text-center border border-slate-200 text-slate-400">—</span>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="section open bg-white rounded-lg border border-slate-200 mb-3 overflow-hidden" id="sec1">
+    <div class="section-header flex items-center gap-3 px-4 py-3.5 cursor-pointer hover:bg-slate-50 border-b border-transparent" onclick="toggleSection('sec1')">
+      <span class="font-mono text-xs text-slate-400 min-w-[20px]">01</span>
+      <span class="text-sm font-semibold text-slate-700 flex-1">Precipitating Factors — เกิดอะไรขึ้น?</span>
+      <span class="font-mono text-xs px-2.5 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-500" id="badge-sec1">0 / 15</span>
+      <span class="chevron text-slate-400 text-xs">▾</span>
+    </div>
+    <div class="section-body flex-col gap-2 p-4">
+      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider pb-1.5 border-b border-slate-100 mt-1">1.1 Non-compliance</p>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700 leading-relaxed">หยุดยาเอง<em class="not-italic block text-xs text-slate-400 mt-0.5">ระบุยาตัวไหน / เหตุผล: ราคา / ผลข้างเคียง / ลืม / ไม่เชื่อ</em></span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">กินเค็ม / ดื่มน้ำมากเกิน</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700 leading-relaxed">ไม่มาตามนัด<em class="not-italic block text-xs text-slate-400 mt-0.5">Missed follow-up appointment</em></span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">ไม่ชั่งน้ำหนักตัวเอง / ไม่รู้สัญญาณเตือน</span>
+      </div>
+
+      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider pb-1.5 border-b border-slate-100 mt-3">1.2 Clinical Precipitant</p>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700 leading-relaxed">AF with rapid ventricular response<em class="not-italic block text-xs text-slate-400 mt-0.5">ใหม่ หรือ uncontrolled</em></span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700 leading-relaxed">ACS<em class="not-italic block text-xs text-slate-400 mt-0.5">ตรวจ ECG + troponin ครั้งนี้แล้ว</em></span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700 leading-relaxed">Infection<em class="not-italic block text-xs text-slate-400 mt-0.5">Pneumonia / UTI / Sepsis</em></span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700 leading-relaxed">Anemia<em class="not-italic block text-xs text-slate-400 mt-0.5">Hb drop จาก baseline</em></span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">Uncontrolled hypertension</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">Renal deterioration — AKI on CKD</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700 leading-relaxed">Iatrogenic<em class="not-italic block text-xs text-slate-400 mt-0.5">NSAID / CCB / Steroid จากโรงพยาบาลอื่น</em></span>
+      </div>
+
+      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider pb-1.5 border-b border-slate-100 mt-3">1.3 Social / System</p>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">ไม่มีคนดูแลที่บ้าน</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">ยา out of stock ที่ รพช.</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">ระยะทาง / ค่าเดินทาง — เข้าไม่ถึง รพ.</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">ความรู้ญาติไม่เพียงพอ</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: GDMT -->
+  <div class="section bg-white rounded-lg border border-slate-200 mb-3 overflow-hidden" id="sec2">
+    <div class="section-header flex items-center gap-3 px-4 py-3.5 cursor-pointer hover:bg-slate-50 border-b border-transparent" onclick="toggleSection('sec2')">
+      <span class="font-mono text-xs text-slate-400 min-w-[20px]">02</span>
+      <span class="text-sm font-semibold text-slate-700 flex-1">GDMT Assessment — รักษาครบหรือยัง?</span>
+      <span class="font-mono text-xs px-2.5 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-500" id="badge-sec2">—</span>
+      <span class="chevron text-slate-400 text-xs">▾</span>
+    </div>
+    <div class="section-body flex-col gap-3 p-4">
+      <div class="overflow-x-auto rounded-lg border border-slate-200">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-xs text-slate-500 uppercase tracking-wider">
+              <th class="px-4 py-2.5 text-left font-medium border-b border-slate-200 w-1/4">ยา</th>
+              <th class="px-4 py-2.5 text-left font-medium border-b border-slate-200">ได้รับ?</th>
+              <th class="px-4 py-2.5 text-left font-medium border-b border-slate-200">ขนาดปัจจุบัน / Target</th>
+              <th class="px-4 py-2.5 text-left font-medium border-b border-slate-200">เหตุผลที่หยุด/ลด</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-slate-100">
+              <td class="px-4 py-3 font-medium text-slate-700">ACEi / ARB / ARNi</td>
+              <td class="px-4 py-3">
+                <div class="toggle-btn flex rounded-md overflow-hidden border border-slate-200 text-xs w-fit">
+                  <button onclick="gdmtToggle(this,'yes')" class="active-yes px-3 py-1.5 rounded-l-md">ได้</button>
+                  <button onclick="gdmtToggle(this,'no')" class="px-3 py-1.5 rounded-r-md bg-slate-50 text-slate-500">ไม่ได้</button>
+                </div>
+              </td>
+              <td class="px-4 py-3"><input type="text" placeholder="___/___mg" class="border border-slate-200 rounded px-2 py-1 text-xs w-full focus:outline-none focus:border-teal-500 bg-slate-50"></td>
+              <td class="px-4 py-3"><input type="text" placeholder="ระบุถ้าไม่ได้รับ" class="border border-slate-200 rounded px-2 py-1 text-xs w-full focus:outline-none focus:border-teal-500 bg-slate-50"></td>
+            </tr>
+            <tr class="border-b border-slate-100">
+              <td class="px-4 py-3 font-medium text-slate-700">Beta-blocker</td>
+              <td class="px-4 py-3">
+                <div class="toggle-btn flex rounded-md overflow-hidden border border-slate-200 text-xs w-fit">
+                  <button onclick="gdmtToggle(this,'yes')" class="active-yes px-3 py-1.5 rounded-l-md">ได้</button>
+                  <button onclick="gdmtToggle(this,'no')" class="px-3 py-1.5 rounded-r-md bg-slate-50 text-slate-500">ไม่ได้</button>
+                </div>
+              </td>
+              <td class="px-4 py-3"><input type="text" placeholder="___/___mg" class="border border-slate-200 rounded px-2 py-1 text-xs w-full focus:outline-none focus:border-teal-500 bg-slate-50"></td>
+              <td class="px-4 py-3"><input type="text" placeholder="ระบุถ้าไม่ได้รับ" class="border border-slate-200 rounded px-2 py-1 text-xs w-full focus:outline-none focus:border-teal-500 bg-slate-50"></td>
+            </tr>
+            <tr class="border-b border-slate-100">
+              <td class="px-4 py-3 font-medium text-slate-700">MRA</td>
+              <td class="px-4 py-3">
+                <div class="toggle-btn flex rounded-md overflow-hidden border border-slate-200 text-xs w-fit">
+                  <button onclick="gdmtToggle(this,'yes')" class="active-yes px-3 py-1.5 rounded-l-md">ได้</button>
+                  <button onclick="gdmtToggle(this,'no')" class="px-3 py-1.5 rounded-r-md bg-slate-50 text-slate-500">ไม่ได้</button>
+                </div>
+              </td>
+              <td class="px-4 py-3"><input type="text" placeholder="___/___mg" class="border border-slate-200 rounded px-2 py-1 text-xs w-full focus:outline-none focus:border-teal-500 bg-slate-50"></td>
+              <td class="px-4 py-3"><input type="text" placeholder="ระบุถ้าไม่ได้รับ" class="border border-slate-200 rounded px-2 py-1 text-xs w-full focus:outline-none focus:border-teal-500 bg-slate-50"></td>
+            </tr>
+            <tr>
+              <td class="px-4 py-3 font-medium text-slate-700">SGLT2i</td>
+              <td class="px-4 py-3">
+                <div class="toggle-btn flex rounded-md overflow-hidden border border-slate-200 text-xs w-fit">
+                  <button onclick="gdmtToggle(this,'yes')" class="active-yes px-3 py-1.5 rounded-l-md">ได้</button>
+                  <button onclick="gdmtToggle(this,'no')" class="px-3 py-1.5 rounded-r-md bg-slate-50 text-slate-500">ไม่ได้</button>
+                </div>
+              </td>
+              <td class="px-4 py-3"><input type="text" placeholder="___/___mg" class="border border-slate-200 rounded px-2 py-1 text-xs w-full focus:outline-none focus:border-teal-500 bg-slate-50"></td>
+              <td class="px-4 py-3"><input type="text" placeholder="ระบุถ้าไม่ได้รับ" class="border border-slate-200 rounded px-2 py-1 text-xs w-full focus:outline-none focus:border-teal-500 bg-slate-50"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">ตรวจสอบว่า รพช. มียา GDMT ครบใน formulary</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">OAC: indicated? → ให้หรือไม่ → เหตุผล</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="section bg-white rounded-lg border border-slate-200 mb-3 overflow-hidden" id="sec3">
+    <div class="section-header flex items-center gap-3 px-4 py-3.5 cursor-pointer hover:bg-slate-50 border-b border-transparent" onclick="toggleSection('sec3')">
+      <span class="font-mono text-xs text-slate-400 min-w-[20px]">03</span>
+      <span class="text-sm font-semibold text-slate-700 flex-1">Discharge Quality ครั้งก่อน</span>
+      <span class="font-mono text-xs px-2.5 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-500" id="badge-sec3">0 / 6</span>
+      <span class="chevron text-slate-400 text-xs">▾</span>
+    </div>
+    <div class="section-body flex-col gap-2 p-4">
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">บันทึก Dry weight ก่อน discharge ไว้</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700 leading-relaxed">Euvolemia ก่อน discharge<em class="not-italic block text-xs text-slate-400 mt-0.5">ประเมินจาก JVP, edema, SpO₂</em></span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">ผู้ป่วย/ญาติได้รับ HF Education ก่อนกลับ</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">มีนัด F/U ภายใน 7–14 วันหลัง discharge</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">มี FoCUS report จาก cardiologist ก่อน discharge</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">ระบุ HF phenotype (HFrEF/HFmrEF/HFpEF) ชัดเจน</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4 -->
+  <div class="section bg-white rounded-lg border border-slate-200 mb-3 overflow-hidden" id="sec4">
+    <div class="section-header flex items-center gap-3 px-4 py-3.5 cursor-pointer hover:bg-slate-50 border-b border-transparent" onclick="toggleSection('sec4')">
+      <span class="font-mono text-xs text-slate-400 min-w-[20px]">04</span>
+      <span class="text-sm font-semibold text-slate-700 flex-1">Gap Analysis — ช่วง Discharge → Re-admit</span>
+      <span class="font-mono text-xs px-2.5 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-500" id="badge-sec4">0 / 4</span>
+      <span class="chevron text-slate-400 text-xs">▾</span>
+    </div>
+    <div class="section-body flex-col gap-2 p-4">
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">มีการติดต่อ follow-up จาก รพช. หรือ Virtual-HF แจ้งเตือน</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700 leading-relaxed">น้ำหนักเพิ่มขึ้น &gt; 2 kg/2วัน ก่อน admit<em class="not-italic block text-xs text-slate-400 mt-0.5">ผู้ป่วยรู้ตัวหรือไม่?</em></span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700 leading-relaxed">ผ่าน ED ที่อื่นก่อนมา<em class="not-italic block text-xs text-slate-400 mt-0.5">Fragmented care</em></span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">สามารถระบุจุดที่ระบบล้มเหลวได้ชัดเจน</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5 -->
+  <div class="section bg-white rounded-lg border border-slate-200 mb-3 overflow-hidden" id="sec5">
+    <div class="section-header flex items-center gap-3 px-4 py-3.5 cursor-pointer hover:bg-slate-50 border-b border-transparent" onclick="toggleSection('sec5')">
+      <span class="font-mono text-xs text-slate-400 min-w-[20px]">05</span>
+      <span class="text-sm font-semibold text-slate-700 flex-1">Action Items ก่อน Discharge ครั้งนี้</span>
+      <span class="font-mono text-xs px-2.5 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-500" id="badge-sec5">0 / 9</span>
+      <span class="chevron text-slate-400 text-xs">▾</span>
+    </div>
+    <div class="section-body flex-col gap-2 p-4">
+      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider pb-1.5 border-b border-slate-100">Clinical</p>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">แก้ precipitant หลักได้ครบ</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700 leading-relaxed">Optimize GDMT ก่อน discharge<em class="not-italic block text-xs text-slate-400 mt-0.5">ถ้า renal/BP อนุญาต</em></span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">บันทึก Dry weight ใหม่</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">FoCUS ครั้งนี้ → ส่ง cardio review ผ่าน Virtual-HF</span>
+      </div>
+      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider pb-1.5 border-b border-slate-100 mt-2">Education</p>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700 leading-relaxed">สอน FACES mnemonic<em class="not-italic block text-xs text-slate-400 mt-0.5">Fatigue · Activity limitation · Chest congestion · Edema · Shortness of breath</em></span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">แจก/อธิบาย "ไฟเขียว-เหลือง-แดง" Zone Card</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">ซักทบทวนว่าผู้ป่วยจำสัญญาณเตือนได้จริง</span>
+      </div>
+      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider pb-1.5 border-b border-slate-100 mt-2">Follow-up</p>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">นัด รพช. ภายใน 7 วัน</span>
+      </div>
+      <div class="check-item flex items-start gap-3 px-3 py-2.5 rounded-md border border-transparent cursor-pointer" onclick="toggle(this)">
+        <input type="checkbox"><div class="custom-cb"></div>
+        <span class="text-sm text-slate-700">แจ้ง HF nurse coordinator ที่ รพช. ผ่าน LINE/Virtual-HF</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 6 -->
+  <div class="section bg-white rounded-lg border border-slate-200 mb-3 overflow-hidden" id="sec6">
+    <div class="section-header flex items-center gap-3 px-4 py-3.5 cursor-pointer hover:bg-slate-50 border-b border-transparent" onclick="toggleSection('sec6')">
+      <span class="font-mono text-xs text-slate-400 min-w-[20px]">06</span>
+      <span class="text-sm font-semibold text-slate-700 flex-1">Root Cause Coding — สำหรับ QI</span>
+      <span class="font-mono text-xs px-2.5 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-500" id="badge-sec6">—</span>
+      <span class="chevron text-slate-400 text-xs">▾</span>
+    </div>
+    <div class="section-body flex-col gap-4 p-4">
+      <p class="text-xs text-slate-400">เลือกได้มากกว่า 1 ข้อ — ใช้ aggregate ระดับเขตสุขภาพ</p>
+      <div class="flex flex-wrap gap-2" id="rootCauseTags">
+        <div class="tag border border-slate-200 rounded-lg px-3 py-2 text-center font-mono text-xs text-slate-500 bg-slate-50" onclick="toggleTag(this)" data-code="NC-MED">NC-MED<br><span class="font-sans text-xs">หยุดยาเอง</span></div>
+        <div class="tag border border-slate-200 rounded-lg px-3 py-2 text-center font-mono text-xs text-slate-500 bg-slate-50" onclick="toggleTag(this)" data-code="NC-DIET">NC-DIET<br><span class="font-sans text-xs">กินเค็ม/น้ำมาก</span></div>
+        <div class="tag border border-slate-200 rounded-lg px-3 py-2 text-center font-mono text-xs text-slate-500 bg-slate-50" onclick="toggleTag(this)" data-code="SYS-FU">SYS-FU<br><span class="font-sans text-xs">ไม่มา F/U</span></div>
+        <div class="tag border border-slate-200 rounded-lg px-3 py-2 text-center font-mono text-xs text-slate-500 bg-slate-50" onclick="toggleTag(this)" data-code="SYS-GDMT">SYS-GDMT<br><span class="font-sans text-xs">GDMT ไม่ครบ</span></div>
+        <div class="tag border border-slate-200 rounded-lg px-3 py-2 text-center font-mono text-xs text-slate-500 bg-slate-50" onclick="toggleTag(this)" data-code="SYS-DW">SYS-DW<br><span class="font-sans text-xs">ไม่บันทึก DW</span></div>
+        <div class="tag border border-slate-200 rounded-lg px-3 py-2 text-center font-mono text-xs text-slate-500 bg-slate-50" onclick="toggleTag(this)" data-code="CL-PRECIP">CL-PRECIP<br><span class="font-sans text-xs">Clinical trigger</span></div>
+        <div class="tag border border-slate-200 rounded-lg px-3 py-2 text-center font-mono text-xs text-slate-500 bg-slate-50" onclick="toggleTag(this)" data-code="SYS-FORMULARY">SYS-FORMULARY<br><span class="font-sans text-xs">ยาขาด รพช.</span></div>
+        <div class="tag border border-slate-200 rounded-lg px-3 py-2 text-center font-mono text-xs text-slate-500 bg-slate-50" onclick="toggleTag(this)" data-code="SOC-ACCESS">SOC-ACCESS<br><span class="font-sans text-xs">เข้าถึงยาก</span></div>
+      </div>
+      <div>
+        <label class="text-xs text-slate-400 uppercase tracking-wider block mb-1.5">บันทึกเพิ่มเติม / System Improvement Note</label>
+        <textarea id="qiNotes" rows="4" placeholder="ระบุ systemic issue หรือข้อเสนอแนะการปรับปรุงกระบวนการ..."
+          class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-teal-500 resize-y bg-slate-50 text-slate-700 placeholder-slate-300"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Bar -->
+  <div class="flex gap-3 mt-6 no-print">
+    <button onclick="showSummary()"
+      class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm px-6 py-3 rounded-lg transition-colors">
+      ✓ สรุปและบันทึก
+    </button>
+    <button onclick="window.print()"
+      class="border border-slate-200 hover:border-teal-500 hover:text-teal-600 text-slate-500 text-sm px-5 py-3 rounded-lg transition-colors">
+      ⎙ พิมพ์
+    </button>
+    <button onclick="clearAll()"
+      class="border border-slate-200 hover:border-slate-400 text-slate-400 text-sm px-5 py-3 rounded-lg transition-colors">
+      ↺ ล้างข้อมูล
+    </button>
+  </div>
+
+</main>
+
+<!-- Summary Modal -->
+<div class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center p-4" id="summaryOverlay" onclick="closeSummaryOnBg(event)">
+  <div class="bg-white rounded-xl border border-slate-200 shadow-xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-7">
+    <h2 class="text-base font-semibold text-teal-700 mb-5 flex items-center gap-2">✓ สรุปการประเมิน</h2>
+    <div id="summaryContent" class="space-y-5 text-sm text-slate-700"></div>
+    <div class="flex gap-3 mt-6">
+      <button onclick="exportText()"
+        class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm px-5 py-2.5 rounded-lg transition-colors">
+        ⬇ Copy ข้อความ
+      </button>
+      <button onclick="document.getElementById('summaryOverlay').classList.replace('flex','hidden')"
+        class="border border-slate-200 text-slate-500 text-sm px-5 py-2.5 rounded-lg hover:border-slate-400 transition-colors">
+        ปิด
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSection(id) {
+  const sec = document.getElementById(id);
+  sec.classList.toggle('open');
+  const header = sec.querySelector('.section-header');
+  if (sec.classList.contains('open')) {
+    header.classList.add('border-b', 'border-slate-100');
+  } else {
+    header.classList.remove('border-b', 'border-slate-100');
+  }
+}
+
+function toggle(el) {
+  el.classList.toggle('checked');
+  el.querySelector('input[type=checkbox]').checked = el.classList.contains('checked');
+  updateProgress();
+  updateBadges();
+}
+
+function gdmtToggle(btn, val) {
+  const wrap = btn.closest('.toggle-btn');
+  wrap.querySelectorAll('button').forEach(b => {
+    b.className = b.className.replace('active-yes','').replace('active-no','').trim();
+    b.classList.add('bg-slate-50', 'text-slate-500');
+  });
+  btn.classList.remove('bg-slate-50','text-slate-500');
+  if (val === 'yes') btn.classList.add('active-yes');
+  else btn.classList.add('active-no');
+}
+
+function toggleTag(el) { el.classList.toggle('selected'); }
+
+function updateDaysBadge() {
+  const days = parseInt(document.getElementById('daysSince').value);
+  const badge = document.getElementById('daysBadge');
+  badge.className = 'font-mono text-xs font-medium px-3 py-1 rounded-full min-w-[72px] text-center border';
+  if (isNaN(days)) { badge.classList.add('border-slate-200','text-slate-400'); badge.textContent = '—'; return; }
+  if (days < 7) { badge.classList.add('days-badge-early','border-red-200'); badge.textContent = '< 7 วัน ⚠'; }
+  else if (days <= 30) { badge.classList.add('days-badge-mid','border-amber-200'); badge.textContent = days + ' วัน'; }
+  else { badge.classList.add('days-badge-late','border-green-200'); badge.textContent = days + ' วัน'; }
+}
+
+function updateProgress() {
+  const all = document.querySelectorAll('.check-item');
+  const checked = document.querySelectorAll('.check-item.checked');
+  const pct = all.length ? Math.round(checked.length / all.length * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = checked.length + ' / ' + all.length;
+}
+
+function updateBadges() {
+  ['sec1','sec3','sec4','sec5'].forEach(id => {
+    const sec = document.getElementById(id);
+    const items = sec.querySelectorAll('.check-item');
+    const done = sec.querySelectorAll('.check-item.checked');
+    const badge = document.getElementById('badge-' + id);
+    badge.textContent = done.length + ' / ' + items.length;
+    badge.className = 'font-mono text-xs px-2.5 py-0.5 rounded-full border';
+    if (done.length === items.length && items.length > 0) {
+      badge.classList.add('badge-done');
+    } else {
+      badge.classList.add('border-slate-200','bg-slate-50','text-slate-500');
+    }
+  });
+}
+
+function showSummary() {
+  const get = id => document.getElementById(id).value || '—';
+  const tags = [...document.querySelectorAll('.tag.selected')].map(t => t.dataset.code);
+  const items = [...document.querySelectorAll('.check-item.checked .check-label')].map(el => el.childNodes[0].textContent.trim());
+
+  document.getElementById('summaryContent').innerHTML = `
+    <div>
+      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">ผู้ป่วย</p>
+      <p class="leading-relaxed">${get('ptName')} | HN: ${get('ptHN')} | ${get('ptHospital')}<br>
+      ประเมินโดย: ${get('ptStaff')} | วันที่: ${get('ptDate')}<br>
+      HF Phenotype: ${get('ptPhenotype')} | ห่างจาก Discharge: ${get('daysSince')} วัน</p>
+    </div>
+    <div>
+      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">รายการที่ตรวจพบ (${items.length} ข้อ)</p>
+      <p class="leading-relaxed">${items.length ? items.map(i=>'• '+i).join('<br>') : 'ไม่มี'}</p>
+    </div>
+    <div>
+      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Root Cause Codes</p>
+      <div class="flex flex-wrap gap-1.5">${tags.length ? tags.map(t=>`<span class="font-mono text-xs bg-amber-50 border border-amber-300 text-amber-700 px-2.5 py-0.5 rounded">${t}</span>`).join('') : '<span class="text-slate-400 text-xs">ไม่ได้เลือก</span>'}</div>
+    </div>
+    <div>
+      <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">System Improvement Note</p>
+      <p>${document.getElementById('qiNotes').value || '—'}</p>
+    </div>
+  `;
+  const overlay = document.getElementById('summaryOverlay');
+  overlay.classList.remove('hidden');
+  overlay.classList.add('flex');
+}
+
+function closeSummaryOnBg(e) {
+  if (e.target === document.getElementById('summaryOverlay')) {
+    e.target.classList.replace('flex','hidden');
+  }
+}
+
+function exportText() {
+  const get = id => document.getElementById(id).value || '—';
+  const tags = [...document.querySelectorAll('.tag.selected')].map(t=>t.dataset.code).join(', ') || 'ไม่ได้เลือก';
+  const items = [...document.querySelectorAll('.check-item.checked .check-label')].map(el=>'• '+el.childNodes[0].textContent.trim()).join('\n');
+  const text = `HF RE-ADMISSION ASSESSMENT — Virtual HF\n${'='.repeat(50)}\nผู้ป่วย : ${get('ptName')}  HN: ${get('ptHN')}\nโรงพยาบาล: ${get('ptHospital')}\nประเมินโดย: ${get('ptStaff')}  วันที่: ${get('ptDate')}\nHF Phenotype: ${get('ptPhenotype')}\nห่างจาก Discharge: ${get('daysSince')} วัน\n\nรายการที่ตรวจพบ:\n${items||'ไม่มี'}\n\nRoot Cause Codes: ${tags}\n\nSystem Improvement Note:\n${document.getElementById('qiNotes').value||'—'}\n${'='.repeat(50)}`;
+  navigator.clipboard.writeText(text).then(()=>alert('คัดลอกข้อความแล้ว — สามารถนำไป paste ใน LINE / EMR ได้เลย'));
+}
+
+function clearAll() {
+  if (!confirm('ล้างข้อมูลทั้งหมด?')) return;
+  document.querySelectorAll('.check-item.checked').forEach(el => {
+    el.classList.remove('checked');
+    el.querySelector('input').checked = false;
+  });
+  document.querySelectorAll('.tag.selected').forEach(t=>t.classList.remove('selected'));
+  document.querySelectorAll('input[type=text],input[type=date],textarea').forEach(i=>i.value='');
+  document.querySelectorAll('input[type=number]').forEach(i=>i.value='');
+  document.querySelectorAll('select').forEach(s=>s.selectedIndex=0);
+  const badge = document.getElementById('daysBadge');
+  badge.className = 'font-mono text-xs font-medium px-3 py-1 rounded-full min-w-[72px] text-center border border-slate-200 text-slate-400';
+  badge.textContent = '—';
+  updateProgress(); updateBadges();
+}
+
+// Init
+document.getElementById('ptDate').value = new Date().toISOString().split('T')[0];
+// Open first section border
+document.querySelector('#sec1 .section-header').classList.add('border-b','border-slate-100');
+updateProgress(); updateBadges();
+</script>
+</body>
+</html>
