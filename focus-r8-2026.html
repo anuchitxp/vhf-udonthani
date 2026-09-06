@@ -63,6 +63,8 @@ h1,h2,h3{font-family:'Fraunces',serif}
 .tag.hot{border-color:rgba(53,224,200,.4);color:var(--cyan);background:var(--cyan-dim)}
 .tag.warn{border-color:rgba(245,184,65,.4);color:var(--amber);background:var(--amber-dim)}
 .mono{font-family:var(--mono)}
+#rotateHint{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:rgba(14,33,56,.92);border:1px solid var(--line);color:var(--cyan);font-family:var(--mono);font-size:11px;letter-spacing:.1em;padding:8px 16px;border-radius:999px;z-index:999;opacity:0;pointer-events:none;transition:opacity .4s ease;text-align:center;max-width:88vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#rotateHint.show{opacity:1}
 /* nav */
 .nav{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:14px;align-items:center;z-index:99}
 .nav button{background:rgba(14,33,56,.9);border:1px solid var(--line);color:var(--cyan);width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:16px;transition:.2s}
@@ -405,6 +407,7 @@ table.cmp{width:100%;border-collapse:collapse;font-size:13.5px}
 
 </div></div>
 
+<div id="rotateHint">↻ Turn your phone sideways for an upright view</div>
 <div class="nav">
   <button id="prev">‹</button>
   <div class="dots" id="dots"></div>
@@ -424,8 +427,24 @@ document.addEventListener('keydown',e=>{
   if(e.key==='ArrowLeft'||e.key==='PageUp')go(cur-1);
   if(e.key==='Home')go(0);if(e.key==='End')go(slides.length-1);
 });
-function fit(){const d=document.getElementById('deck');const s=Math.min(innerWidth/1320,innerHeight/790);d.style.transform=`scale(${s})`;}
-addEventListener('resize',fit);fit();
+let hintShown=false;
+function fit(){
+  const d=document.getElementById('deck');
+  const hint=document.getElementById('rotateHint');
+  const portrait=innerWidth<innerHeight;
+  const s=portrait?Math.min(innerWidth/760,innerHeight/1350):Math.min(innerWidth/1320,innerHeight/790);
+  d.style.transform=portrait?`rotate(90deg) scale(${s})`:`scale(${s})`;
+  if(hint){
+    if(portrait){
+      hint.classList.add('show');
+      if(!hintShown){hintShown=true;setTimeout(()=>hint.classList.remove('show'),3500);}
+    } else {
+      hint.classList.remove('show');
+      hintShown=false;
+    }
+  }
+}
+addEventListener('resize',fit);addEventListener('orientationchange',fit);fit();
 </script>
 </body>
 </html>
