@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual-HF — สรุปแพลตฟอร์ม โดย นพ.อนุชิต วงศ์เพ็ญ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700;9..144,900&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+Thai:wght@300;400;500;600;700;900&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#071120;
+  --ink2:#0B1B30;
+  --panel:#0E2138;
+  --line:rgba(120,190,220,.14);
+  --cyan:#35E0C8;
+  --cyan-dim:rgba(53,224,200,.12);
+  --amber:#F5B841;
+  --amber-dim:rgba(245,184,65,.10);
+  --coral:#FF6B6B;
+  --paper:#EAF2F5;
+  --mut:#8FA9BC;
+  --mono:'IBM Plex Mono','Noto Sans Thai',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#04080F;overflow:hidden;font-family:'IBM Plex Sans','Noto Sans Thai',sans-serif;color:var(--paper)}
+.stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.deck{position:relative;width:1280px;height:720px;transform-origin:center center;box-shadow:0 40px 120px rgba(0,0,0,.7)}
+.slide{position:absolute;inset:0;background:var(--ink);opacity:0;visibility:hidden;transition:opacity .55s ease;overflow:hidden}
+.slide.active{opacity:1;visibility:visible}
+/* ---------- atmosphere ---------- */
+.slide::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+   radial-gradient(900px 500px at 85% -10%, rgba(53,224,200,.07), transparent 60%),
+   radial-gradient(700px 500px at -5% 110%, rgba(10,40,70,.55), transparent 60%);}
+.grain{position:absolute;inset:0;pointer-events:none;opacity:.35;mix-blend-mode:overlay;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");}
+.gridlines{position:absolute;inset:0;pointer-events:none;opacity:.5;
+ background:linear-gradient(var(--line) 1px,transparent 1px) 0 0/100% 90px,
+            linear-gradient(90deg,var(--line) 1px,transparent 1px) 0 0/90px 100%;}
+/* ---------- shared chrome ---------- */
+.chrome-top{position:absolute;top:0;left:0;right:0;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 44px;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:13px;letter-spacing:.14em;color:var(--mut);z-index:5}
+.chrome-top .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--cyan);margin-right:9px;box-shadow:0 0 8px var(--cyan);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.chrome-bot{position:absolute;bottom:0;left:0;right:0;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 44px;border-top:1px solid var(--line);font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--mut);z-index:5}
+.body{position:absolute;top:54px;bottom:46px;left:0;right:0;padding:40px 60px;z-index:2}
+/* ---------- reveal choreography ---------- */
+.rev{opacity:0;transform:translateY(22px)}
+.slide.active .rev{animation:rise .8s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--d,0)*.12s)}
+@keyframes rise{to{opacity:1;transform:none}}
+.slide.active .rev-l{animation:slideL .8s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:calc(var(--d,0)*.12s)}
+.rev-l{opacity:0;transform:translateX(-30px)}
+@keyframes slideL{to{opacity:1;transform:none}}
+/* ---------- type ---------- */
+.kicker{font-family:var(--mono);font-size:14px;letter-spacing:.28em;text-transform:uppercase;color:var(--cyan)}
+h1,h2,h3{font-family:'Fraunces','Noto Serif Thai',serif}
+.h2{font-size:40px;font-weight:600;line-height:1.18;letter-spacing:-.005em;margin:14px 0 8px}
+.h2 em{font-style:italic;color:var(--cyan);font-weight:400}
+.sub{color:var(--mut);font-size:17.5px;font-weight:300;max-width:840px;line-height:1.7}
+.rule{height:2px;width:64px;background:var(--cyan);margin:22px 0}
+/* ---------- components ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px 24px}
+.tag{display:inline-block;font-family:var(--mono);font-size:12.5px;letter-spacing:.16em;padding:5px 12px;border:1px solid var(--line);border-radius:999px;color:var(--mut)}
+.tag.hot{border-color:rgba(53,224,200,.4);color:var(--cyan);background:var(--cyan-dim)}
+.tag.warn{border-color:rgba(245,184,65,.4);color:var(--amber);background:var(--amber-dim)}
+.tag.bad{border-color:rgba(255,107,107,.4);color:var(--coral);background:rgba(255,107,107,.08)}
+.mono{font-family:var(--mono)}
+/* nav */
+.nav{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:14px;align-items:center;z-index:99}
+.nav button{background:rgba(14,33,56,.9);border:1px solid var(--line);color:var(--cyan);width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:18px;transition:.2s}
+.nav button:hover{background:var(--cyan);color:var(--ink)}
+.dots{display:flex;gap:7px}
+.dots i{width:8px;height:8px;border-radius:50%;background:rgba(143,169,188,.3);cursor:pointer;transition:.25s}
+.dots i.on{background:var(--cyan);box-shadow:0 0 8px var(--cyan);transform:scale(1.25)}
+/* ECG line */
+.ecg-path{fill:none;stroke:var(--cyan);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(53,224,200,.7));stroke-dasharray:1400;stroke-dashoffset:1400}
+.slide.active .ecg-path{animation:trace 3.2s 1s ease-out forwards, glow 2.4s 4.2s linear infinite}
+@keyframes trace{to{stroke-dashoffset:0}}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 5px rgba(53,224,200,.55))}50%{filter:drop-shadow(0 0 14px rgba(53,224,200,.9))}}
+/* spectrum ladder */
+.ladder{display:flex;gap:0;align-items:stretch;height:400px;margin-top:26px}
+.rung{flex:1;border-left:1px solid var(--line);padding:24px 20px;position:relative;display:flex;flex-direction:column;transition:.3s}
+.rung:hover{background:rgba(53,224,200,.04)}
+.rung .num{font-family:var(--mono);font-size:13px;color:var(--mut);letter-spacing:.18em}
+.rung h3{font-size:22px;margin:12px 0 4px;font-weight:600}
+.rung .who{font-family:var(--mono);font-size:12.5px;color:var(--cyan);letter-spacing:.06em;min-height:28px;margin-bottom:10px}
+.rung p{font-size:15px;color:var(--mut);line-height:1.6;font-weight:300}
+.depth{position:absolute;left:0;bottom:0;right:0;background:linear-gradient(90deg,var(--cyan),rgba(53,224,200,.15));opacity:.85}
+.rung:hover .depth{filter:brightness(1.3)}
+.rung.me{background:rgba(53,224,200,.06)}
+.star{position:absolute;top:16px;right:16px;font-size:18px}
+/* number chips */
+.nchip{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--cyan);color:var(--cyan);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;font-size:18px;flex-shrink:0;background:var(--cyan-dim)}
+/* table */
+table.cmp{width:100%;border-collapse:collapse;font-size:15.5px}
+.cmp th,.cmp td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.cmp th{font-family:var(--mono);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);font-weight:500;border-bottom:2px solid rgba(53,224,200,.35)}
+.cmp td:first-child{font-weight:600;color:var(--paper);width:170px}
+.cmp td{color:var(--mut);font-weight:300;line-height:1.5}
+.cmp tr:hover td{background:rgba(53,224,200,.04)}
+.cmp .hl{color:var(--paper)}
+/* lists */
+.blt{list-style:none}
+.blt li{position:relative;padding-left:24px;margin-bottom:12px;font-size:16px;line-height:1.65;color:#C6D6DE;font-weight:300}
+.blt li::before{content:"";position:absolute;left:0;top:8px;width:9px;height:9px;border:1.5px solid var(--cyan);border-radius:2px;transform:rotate(45deg)}
+.blt b{color:var(--paper);font-weight:600}
+.blt li .mono{color:var(--cyan);font-size:15px}
+/* two col */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:36px}
+/* big footer accent number */
+.bignum{position:absolute;right:40px;bottom:50px;font-family:'Fraunces',serif;font-weight:900;font-size:280px;line-height:1;color:transparent;-webkit-text-stroke:1px rgba(120,190,220,.10);pointer-events:none;z-index:1}
+/* safeguard box (PDPA) */
+.safe{border-left:3px solid var(--cyan);background:var(--cyan-dim);border-radius:0 10px 10px 0;padding:18px 24px}
+.safe .tt{font-family:'Fraunces','Noto Serif Thai',serif;font-size:19px;font-weight:600;color:var(--cyan);margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.safe p{font-size:15.5px;color:#D8E3E8;line-height:1.6;font-weight:300}
+.safe b{color:#fff}
+/* module grid */
+.mods{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+.modcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.modcard .ic{font-family:var(--mono);color:var(--cyan);font-size:21px;margin-bottom:10px;display:block}
+.modcard b{font-size:16.5px;display:block;margin-bottom:5px}
+.modcard p{font-size:14.5px;color:var(--mut);font-weight:300;line-height:1.55}
+/* stat grid */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:32px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:26px 20px;text-align:left}
+.stat .n{font-family:'Fraunces',serif;font-weight:700;font-size:48px;color:var(--cyan);line-height:1}
+.stat .l{font-size:14.5px;color:var(--mut);margin-top:10px;font-weight:300;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="stage"><div class="deck" id="deck">
+
+<!-- ═══════════ SLIDE 1 · TITLE ═══════════ -->
+<section class="slide active">
+  <div class="gridlines"></div><div class="grain"></div>
+  <div class="chrome-top"><span><span class="dot"></span>อบรม FOCUS สำหรับแพทย์ที่ไม่ใช่อายุรแพทย์หัวใจ · เขตสุขภาพที่ 8</span><span>UDON THANI HOSPITAL · THAILAND</span></div>
+  <div style="position:absolute;top:120px;left:60px;right:60px;z-index:3">
+    <div class="rev" style="--d:1"><span class="tag hot">TELEMEDICINE · HEART FAILURE</span>&nbsp;&nbsp;<span class="tag">HUB & SPOKE · 7 จังหวัด</span></div>
+    <h1 class="rev" style="--d:2;font-size:112px;font-weight:900;line-height:.95;letter-spacing:-.02em;margin-top:32px">Virtual<span style="color:var(--cyan)">-HF</span></h1>
+    <h1 class="rev" style="--d:3;font-size:34px;font-weight:300;font-style:italic;color:#C9DBE4;margin-top:10px;font-family:'Fraunces','Noto Serif Thai',serif">จาก FoCUS ข้างเตียง สู่ระบบดูแลหัวใจล้มเหลวทั้งเครือข่าย</h1>
+    <div class="rev" style="--d:4;margin-top:40px;display:flex;align-items:center;gap:24px">
+      <div style="width:3px;height:60px;background:var(--cyan)"></div>
+      <div>
+        <div style="font-family:'Fraunces','Noto Serif Thai',serif;font-size:22px;font-weight:600">นพ.อนุชิต วงศ์เพ็ญ</div>
+        <div class="mono" style="font-size:14px;color:var(--mut);letter-spacing:.1em;margin-top:6px">อายุรแพทย์หัวใจ รพ.อุดรธานี · ประธาน SERVICE PLAN สาขาหัวใจ เขตสุขภาพที่ 8</div>
+      </div>
+    </div>
+  </div>
+  <svg viewBox="0 0 1280 200" style="position:absolute;bottom:46px;left:0;width:100%;height:200px;z-index:2" preserveAspectRatio="none">
+    <path class="ecg-path" d="M0,120 L340,120 L370,120 L385,80 L400,160 L415,20 L430,180 L445,110 L460,120 L560,120 L590,120 L605,95 L620,140 L635,50 L650,155 L665,110 L680,120 L860,120 L890,120 L905,85 L920,155 L935,30 L950,170 L965,110 L980,120 L1280,120"/>
+  </svg>
+  <div class="chrome-bot"><span>ทำไมท่านที่อบรม FOCUS วันนี้ คือฟันเฟืองสำคัญของระบบ</span><span>01 / 10</span></div>
+</section>
+
+<!-- ═══════════ SLIDE 2 · ปัญหา ═══════════ -->
+<section class="slide">
+  <div class="grain"></div>
+  <div class="chrome-top"><span><span class="dot"></span>ทำไมต้อง VIRTUAL-HF</span><span>VIRTUAL-HF · นพ.อนุชิต วงศ์เพ็ญ</span></div>
+  <div class="body">
+    <div class="rev" style="--d:1"><span class="kicker">จุดเริ่มต้นของปัญหา</span></div>
+    <h2 class="h2 rev" style="--d:2">เมื่อหัวใจล้มเหลวเฉียบพลัน แต่<em>ไม่มีหมอหัวใจ</em>ข้างเตียง</h2>
+    <div class="cols" style="margin-top:24px">
+      <div>
+        <div class="card rev" style="--d:3;border-color:rgba(255,107,107,.25)">
+          <span class="tag bad">สถานการณ์จริงที่ รพช.</span>
+          <ul class="blt" style="margin-top:16px">
+            <li>ผู้ป่วย HF เฉียบพลันมาถึง แต่<b>ไม่มีอายุรแพทย์หัวใจประจำ</b>ที่โรงพยาบาล</li>
+            <li>การประเมินหัวใจด้วย echo แบบ formal ต้อง<b>รอส่งต่อ หรือรอคิว</b></li>
+            <li>การตัดสินใจสำคัญ — เริ่มยาขับปัสสาวะ, ประเมิน dispo — <b>ล่าช้าโดยไม่จำเป็น</b></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="card rev" style="--d:4">
+          <span class="tag hot">ทางออกที่มีอยู่แล้วในมือท่าน</span>
+          <p style="margin-top:14px;font-size:16.5px;line-height:1.65;color:#C6D6DE;font-weight:300"><b style="color:#fff">FoCUS (Focused Cardiac Ultrasound)</b> คือคำตอบระดับข้างเตียง — แต่ FoCUS อย่างเดียวยังไม่พอ ถ้าไม่มีระบบที่ทำให้ cardiologist <b style="color:var(--cyan)">review ผลได้ทันเวลา</b></p>
+        </div>
+        <div class="rev" style="--d:5;margin-top:18px;background:var(--cyan-dim);border:1px solid rgba(53,224,200,.3);border-radius:10px;padding:18px 20px">
+          <span class="mono" style="font-size:13px;letter-spacing:.18em;color:var(--cyan)">KEY IDEA</span>
+          <p style="font-size:16.5px;margin-top:8px;color:#DCEAEE;font-weight:300">ช่องว่างระหว่าง <b>"ทำ FoCUS ได้"</b> กับ <b>"ได้รับการ review ทันเวลา"</b> — คือสิ่งที่ <b style="color:var(--cyan)">Virtual-HF</b> เข้ามาเติมเต็ม</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chrome-bot"><span>ปัญหาระบบ ไม่ใช่ปัญหาความรู้</span><span>02 / 10</span></div>
+</section>
+
+<!-- ═══════════ SLIDE 3 · ภาพรวมระบบ ═══════════ -->
+<section class="slide">
+  <div class="grain"></div>
+  <div class="chrome-top"><span><span class="dot"></span>ระบบและสถาปัตยกรรม</span><span>VIRTUAL-HF · นพ.อนุชิต วงศ์เพ็ญ</span></div>
+  <div class="body">
+    <div class="rev" style="--d:1"><span class="kicker">One Platform · ทุก รพ. ในเครือข่าย</span></div>
+    <h2 class="h2 rev" style="--d:2">ภาพรวมระบบ <em>Virtual-HF</em></h2>
+    <p class="sub rev" style="--d:3">โมเดล Hub-and-Spoke เชื่อม รพ.อุดรธานี (Hub) กับ รพ.ชุมชนอีกประมาณ 20 แห่ง (Spoke) ผ่านแพลตฟอร์มเดียว บริหารสิทธิ์การเข้าถึงตามบทบาท (Role-based access)</p>
+    <div class="mods">
+      <div class="modcard rev" style="--d:4"><span class="ic">▤</span><b>Bed Management</b><p>บริหารเตียง รับ-จำหน่ายผู้ป่วย พร้อมสถานะ echo แบบ real-time บนหน้า bed grid</p></div>
+      <div class="modcard rev" style="--d:5"><span class="ic">◉</span><b>Remote FoCUS Echo</b><p>Workflow ส่งคลิป FoCUS จากหน้างาน สู่การ review โดย cardiologist ทางไกล</p></div>
+      <div class="modcard rev" style="--d:6"><span class="ic">℞</span><b>GDMT Monitoring</b><p>ติดตามยา 4 เสาหลักของ HF พร้อมเหตุผลกรณีไม่ได้ให้ยา</p></div>
+      <div class="modcard rev" style="--d:7"><span class="ic">↻</span><b>30-Day Readmission</b><p>ติดตามการ re-admit ภายใน 30 วัน เพื่อวัดคุณภาพการดูแล</p></div>
+      <div class="modcard rev" style="--d:8"><span class="ic">▦</span><b>Regional HF Registry</b><p>ฐานข้อมูลผู้ป่วย HF ระดับเขต ใช้ต่อยอดวิจัยและนโยบาย</p></div>
+      <div class="modcard rev" style="--d:9"><span class="ic">⚿</span><b>Role-Based Access</b><p>HF_SITE · CARDIOLOGIST · ADMIN — สิทธิ์การเข้าถึงแยกตามบทบาทชัดเจน</p></div>
+    </div>
+  </div>
+  <div class="chrome-bot"><span>ANGULAR + FIREBASE · HUB & SPOKE</span><span>03 / 10</span></div>
+</section>
+
+<!-- ═══════════ SLIDE 4 · CREDENTIALING SCOPE ═══════════ -->
+<section class="slide">
+  <div class="grain"></div>
+  <div class="chrome-top"><span><span class="dot"></span>ขอบเขตผู้ปฏิบัติงาน (CREDENTIALING)</span><span>VIRTUAL-HF · นพ.อนุชิต วงศ์เพ็ญ</span></div>
+  <div class="body">
+    <div class="rev" style="--d:1"><span class="kicker">Credentialing Scope</span></div>
+    <h2 class="h2 rev" style="--d:2">ใครทำ <em>FoCUS</em> ได้บ้างในระบบ Virtual-HF</h2>
+    <div class="ladder">
+      <div class="rung rev-l me" style="--d:3"><span class="star">★</span><span class="num">กลุ่ม 01</span><h3>แพทย์ทั่วไป (GP)</h3><div class="who">ผ่านการอบรม FOCUS — คือท่านวันนี้</div><p>ทุกระดับ รพ. ที่ผ่านการอบรมประจำปีของเขตสุขภาพที่ 8 หรือ OJT ระหว่างหมุนเวียน Internal Medicine</p><div class="depth" style="height:30%"></div></div>
+      <div class="rung rev-l" style="--d:4"><span class="num">กลุ่ม 02</span><h3>Sonographer / พยาบาล</h3><div class="who">TRAINED & CERTIFIED FOCUS</div><p>นักเทคนิคหัวใจหรือพยาบาลที่ผ่านการอบรม FoCUS อย่างเป็นทางการ ทำหัตถการได้โดยตรง</p><div class="depth" style="height:52%"></div></div>
+      <div class="rung rev-l" style="--d:5"><span class="num">กลุ่ม 03</span><h3>Emergency Physician</h3><div class="who">TRAINER · OJT SUPERVISOR</div><p>ทำหน้าที่เป็นผู้สอนและ supervisor ระหว่างการฝึก OJT ให้แพทย์และบุคลากรกลุ่มอื่น</p><div class="depth" style="height:70%"></div></div>
+      <div class="rung rev-l" style="--d:6"><span class="num">กลุ่ม 04</span><h3>Cardiologist</h3><div class="who">FINAL REVIEW AUTHORITY</div><p>ผู้ review และ finalize ผล FoCUS อย่างเป็นทางการ ผ่านระบบทางไกล</p><div class="depth" style="height:95%"></div></div>
+    </div>
+    <p class="rev" style="--d:7;font-size:14.5px;color:var(--mut);margin-top:16px;font-weight:300">พยาบาล HF_SITE สามารถอัปโหลดคลิปแทนผู้ทำหัตถการได้ (submitter) — ระบบแยก audit trail ระหว่าง <span class="mono" style="color:var(--cyan)">uploaderUID</span> และ <span class="mono" style="color:var(--cyan)">performerUID</span> เสมอ</p>
+  </div>
+  <div class="chrome-bot"><span>สิทธิ์การรับรองอยู่ระดับสถาบัน · ตรวจสอบย้อนกลับได้ทุกครั้ง</span><span>04 / 10</span></div>
+</section>
+
+<!-- ═══════════ SLIDE 5 · WORKFLOW SITE ═══════════ -->
+<section class="slide">
+  <div class="grain"></div><div class="bignum" style="font-size:240px;bottom:60px">⌁</div>
+  <div class="chrome-top"><span><span class="dot"></span>WORKFLOW · 1 OF 2</span><span>VIRTUAL-HF · นพ.อนุชิต วงศ์เพ็ญ</span></div>
+  <div class="body">
+    <div class="rev" style="--d:1"><span class="kicker">ขั้นตอนที่หน้างาน (Site)</span></div>
+    <h2 class="h2 rev" style="--d:2">จากเครื่อง Ultrasound สู่ระบบ <em>ใน 3 ขั้นตอน</em></h2>
+    <div class="cols" style="margin-top:26px">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card rev-l" style="--d:3;display:flex;gap:16px"><div class="nchip">1</div><div><b style="font-size:17px">เข้าเมนู /quick-echo</b><p style="font-size:15px;color:var(--mut);font-weight:300;margin-top:5px;line-height:1.55">บันทึกวิดีโอ 4 มุมมองหลัก แล้วอัปโหลดเข้าระบบ</p></div></div>
+        <div class="card rev-l" style="--d:4;display:flex;gap:16px"><div class="nchip">2</div><div><b style="font-size:17px">กรอก Site Assessment</b><p style="font-size:15px;color:var(--mut);font-weight:300;margin-top:5px;line-height:1.55">ประเมินเบื้องต้นก่อนส่งต่อ — LV, RV, IVC, B-lines, effusion</p></div></div>
+        <div class="card rev-l" style="--d:5;display:flex;gap:16px"><div class="nchip">3</div><div><b style="font-size:17px">ระบบสร้าง echoRequest</b><p style="font-size:15px;color:var(--mut);font-weight:300;margin-top:5px;line-height:1.55">สถานะเปลี่ยนเป็น <span class="mono" style="color:var(--cyan)">Pending</span> ส่งต่อให้ cardiologist ที่ hub ทันที</p></div></div>
+      </div>
+      <div>
+        <div class="card rev" style="--d:6">
+          <span class="tag hot">4 มุมมองที่บันทึก</span>
+          <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+            <span class="tag" style="font-size:14px;padding:8px 16px">PLAX</span>
+            <span class="tag" style="font-size:14px;padding:8px 16px">PSAX</span>
+            <span class="tag" style="font-size:14px;padding:8px 16px">A4C</span>
+            <span class="tag" style="font-size:14px;padding:8px 16px">IVC</span>
+          </div>
+        </div>
+        <div class="card rev" style="--d:7;margin-top:16px">
+          <span class="tag">Site Assessment ครอบคลุม</span>
+          <ul class="blt" style="margin-top:14px">
+            <li><b>LV function</b> — normal / mild / severely reduced</li>
+            <li><b>IVC</b> — collapsible / plethoric</li>
+            <li><b>B-lines</b> และ <b>pericardial effusion</b></li>
+            <li>ระบุ <b>clinical question</b> ที่ต้องการคำตอบ</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chrome-bot"><span>QUICK-ECHO · GUIDED UPLOAD</span><span>05 / 10</span></div>
+</section>
+
+<!-- ═══════════ SLIDE 6 · WORKFLOW CARDIOLOGIST ═══════════ -->
+<section class="slide">
+  <div class="grain"></div>
+  <div class="chrome-top"><span><span class="dot"></span>WORKFLOW · 2 OF 2</span><span>VIRTUAL-HF · นพ.อนุชิต วงศ์เพ็ญ</span></div>
+  <div class="body">
+    <div class="rev" style="--d:1"><span class="kicker">การ Review ทางไกล</span></div>
+    <h2 class="h2 rev" style="--d:2">Cardiologist Review — จาก <em>Pending สู่ Finalized</em></h2>
+    <div class="cols" style="margin-top:26px">
+      <div class="card rev-l" style="--d:3">
+        <span class="tag hot">Formal Report ที่ Cardiologist กรอก</span>
+        <ul class="blt" style="margin-top:16px">
+          <li><b>LVEF</b> — preserved / mildly / moderately / severely reduced</li>
+          <li><b>RV function</b> และ <b>Volume status</b></li>
+          <li><b>Pericardial effusion</b> และ <b>Cardiac rhythm</b></li>
+          <li><b>Impression category</b> — HFrEF / HFpEF / Valvular / Inconclusive</li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card rev-l" style="--d:4">
+          <span class="tag">ระดับความเร่งด่วน</span>
+          <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+            <span class="tag" style="padding:8px 14px">Routine</span>
+            <span class="tag warn" style="padding:8px 14px">Urgent 24h</span>
+            <span class="tag bad" style="padding:8px 14px">Emergency Call</span>
+          </div>
+        </div>
+        <div class="rev-l" style="--d:5;background:var(--cyan-dim);border:1px solid rgba(53,224,200,.3);border-radius:10px;padding:16px 20px">
+          <span class="mono" style="font-size:13px;letter-spacing:.18em;color:var(--cyan)">AFTER FINALIZE</span>
+          <p style="font-size:15.5px;margin-top:8px;color:#DCEAEE;font-weight:300">สถานะเปลี่ยนเป็น <b>Finalized</b> — ผลกลับไปแสดงที่หน้างานทันที พร้อม audit trail: <span class="mono" style="color:var(--cyan)">finalizedBy</span> + timestamp</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chrome-bot"><span>DRAFT → PENDING → FINALIZED</span><span>06 / 10</span></div>
+</section>
+
+<!-- ═══════════ SLIDE 7 · GDMT & BED ═══════════ -->
+<section class="slide">
+  <div class="grain"></div>
+  <div class="chrome-top"><span><span class="dot"></span>จาก FOCUS สู่การรักษา</span><span>VIRTUAL-HF · นพ.อนุชิต วงศ์เพ็ญ</span></div>
+  <div class="body">
+    <div class="rev" style="--d:1"><span class="kicker">เชื่อมผลตรวจกับการรักษาจริง</span></div>
+    <h2 class="h2 rev" style="--d:2">GDMT Monitoring & <em>Bed Management</em></h2>
+    <div class="cols" style="margin-top:26px">
+      <div class="card rev-l" style="--d:3;border-top:3px solid var(--cyan)">
+        <h3 style="font-size:23px">GDMT — 4 เสาหลัก</h3>
+        <p style="margin-top:12px;font-size:15.5px;line-height:1.6;color:var(--mut);font-weight:300">ระบบติดตามการให้ยาหลักของ HF พร้อมบันทึกเหตุผลถ้าไม่ได้ให้</p>
+        <div class="rule" style="width:40px;margin:14px 0"></div>
+        <ul class="blt">
+          <li><b>ACEi / ARB / ARNI</b></li>
+          <li><b>Beta-blocker</b></li>
+          <li><b>MRA</b></li>
+          <li><b>SGLT2i</b></li>
+        </ul>
+      </div>
+      <div class="card rev-l" style="--d:5;border-top:3px solid var(--amber)">
+        <h3 style="font-size:23px">Bed Grid — Real-time</h3>
+        <p style="margin-top:12px;font-size:15.5px;line-height:1.6;color:var(--mut);font-weight:300">สถานะ FoCUS แสดงบนหน้า bed grid ทันที ไม่ต้องสลับแอป</p>
+        <div class="rule" style="width:40px;margin:14px 0;background:var(--amber)"></div>
+        <ul class="blt">
+          <li><span class="mono">▸</span> <span class="mono" style="color:var(--cyan)">quickEchoRequested</span> / <span class="mono" style="color:var(--cyan)">quickEchoDone</span></li>
+          <li><span class="mono">▸</span> <span class="mono" style="color:var(--cyan)">echoReportStatus</span> — DRAFT / FINAL</li>
+          <li>ทุกอย่างอยู่ใน<b>ระบบเดียว</b> ตั้งแต่รับผู้ป่วยจนถึงจำหน่าย</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="chrome-bot"><span>FOCUS ผลลัพธ์ ไม่ใช่แค่ภาพ แต่คือการตัดสินใจรักษา</span><span>07 / 10</span></div>
+</section>
+
+<!-- ═══════════ SLIDE 8 · PDPA & SECURITY ═══════════ -->
+<section class="slide">
+  <div class="grain"></div>
+  <div class="chrome-top"><span><span class="dot"></span>ความเป็นส่วนตัวของข้อมูล</span><span>VIRTUAL-HF · นพ.อนุชิต วงศ์เพ็ญ</span></div>
+  <div class="body">
+    <div class="rev" style="--d:1"><span class="kicker">ออกแบบตาม PDPA ตั้งแต่ต้น</span></div>
+    <h2 class="h2 rev" style="--d:2">ข้อมูลผู้ป่วยปลอดภัย โดย<em>ไม่กระทบการทำงาน</em></h2>
+    <div style="display:flex;flex-direction:column;gap:16px;margin-top:26px">
+      <div class="safe rev-l" style="--d:3">
+        <div class="tt">✓ &nbsp;ปกปิดตัวตนบนหน้าจอ Cardiologist</div>
+        <p>หน้าจอ cardiologist <b>ไม่แสดงชื่อผู้ป่วยจริง</b> — ใช้ <span class="mono" style="color:var(--cyan)">patientCode</span> แทนเสมอ</p>
+      </div>
+      <div class="safe rev-l" style="--d:4">
+        <div class="tt">✓ &nbsp;ไฟล์ภาพไม่ระบุตัวตน</div>
+        <p>ไฟล์ ECG และ CXR ตั้งชื่อไฟล์แบบ <b>UUID</b> ป้องกันการย้อนกลับไปหาตัวผู้ป่วยจากชื่อไฟล์</p>
+      </div>
+      <div class="safe rev-l" style="--d:5">
+        <div class="tt">✓ &nbsp;แจ้งเตือนแบบไม่ระบุตัวตน</div>
+        <p>การแจ้งเตือนผ่าน LINE ใช้เฉพาะกรณี<b>เร่งด่วนที่สุด</b> และ<b>ไม่มีข้อมูลระบุตัวผู้ป่วย</b>ปะปนอยู่</p>
+      </div>
+      <div class="safe rev-l" style="--d:6">
+        <div class="tt">✓ &nbsp;ตรวจสอบย้อนกลับได้ทุกการเข้าถึง</div>
+        <p>ทุกการเข้าถึงและอัปโหลดมี <b>audit trail</b> ผูกกับ uid ของผู้ใช้งานเสมอ</p>
+      </div>
+    </div>
+  </div>
+  <div class="chrome-bot"><span>PRIVACY BY DESIGN</span><span>08 / 10</span></div>
+</section>
+
+<!-- ═══════════ SLIDE 9 · ผลลัพธ์ ═══════════ -->
+<section class="slide">
+  <div class="grain"></div>
+  <div class="chrome-top"><span><span class="dot"></span>ผลลัพธ์ & แผนวิจัย</span><span>VIRTUAL-HF · นพ.อนุชิต วงศ์เพ็ญ</span></div>
+  <div class="body">
+    <div class="rev" style="--d:1"><span class="kicker">Results & Ongoing Research</span></div>
+    <h2 class="h2 rev" style="--d:2">สิ่งที่ระบบเริ่มให้<em>คำตอบได้แล้ว</em></h2>
+    <div class="stats">
+      <div class="stat rev" style="--d:3"><div class="n">20+</div><div class="l">รพ.เครือข่าย (Spoke) ที่เชื่อมต่อกับ Hub</div></div>
+      <div class="stat rev" style="--d:4"><div class="n">7</div><div class="l">จังหวัด ในเขตสุขภาพที่ 8</div></div>
+      <div class="stat rev" style="--d:5"><div class="n">30 วัน</div><div class="l">ติดตาม Readmission อัตโนมัติทุกราย</div></div>
+      <div class="stat rev" style="--d:6"><div class="n">HITAP</div><div class="l">ร่วมประเมิน Cost-effectiveness (CEA/CUA)</div></div>
+    </div>
+    <div class="rev" style="--d:7;margin-top:28px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 22px">
+      <span class="mono" style="font-size:13px;letter-spacing:.16em;color:var(--mut)">กำลังดำเนินการ</span>
+      <p style="font-size:15.5px;margin-top:8px;color:#C6D6DE;font-weight:300">เก็บข้อมูล baseline การ readmission จากฐานข้อมูลอ้างสิทธิ์ NHSO ของเขตสุขภาพที่ 8 เพื่อวิเคราะห์ cost-effectiveness อย่างเป็นระบบ</p>
+    </div>
+  </div>
+  <div class="chrome-bot"><span>จากข้อมูลหน้างาน สู่หลักฐานเชิงนโยบาย</span><span>09 / 10</span></div>
+</section>
+
+<!-- ═══════════ SLIDE 10 · NEXT STEPS ═══════════ -->
+<section class="slide">
+  <div class="gridlines"></div><div class="grain"></div>
+  <div class="chrome-top"><span><span class="dot"></span>ก้าวต่อไป</span><span>VIRTUAL-HF · นพ.อนุชิต วงศ์เพ็ญ</span></div>
+  <div class="body">
+    <div class="rev" style="--d:1"><span class="kicker">Key Takeaways</span></div>
+    <h2 class="h2 rev" style="--d:2">บทบาทของท่าน ใน<em>ก้าวต่อไป</em>ของเครือข่าย</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px">
+      <div class="card rev" style="--d:3;display:flex;gap:16px"><div class="nchip">1</div><div><b style="font-size:17.5px">ขยายสู่ รพ.อุดรธานี (Hub) เอง</b><p style="font-size:15px;color:var(--mut);font-weight:300;margin-top:6px;line-height:1.55">ปัจจุบัน hub ยังไม่ได้ใช้ระบบกับผู้ป่วยในของตัวเอง</p></div></div>
+      <div class="card rev" style="--d:4;display:flex;gap:16px"><div class="nchip">2</div><div><b style="font-size:17.5px">ผลักดันเข้า NHSO Fee Schedule</b><p style="font-size:15px;color:var(--mut);font-weight:300;margin-top:6px;line-height:1.55">Remote FoCUS Review Fee 200–500 บาท/ครั้ง</p></div></div>
+      <div class="card rev" style="--d:5;display:flex;gap:16px"><div class="nchip">3</div><div><b style="font-size:17.5px">วางมาตรฐาน FoCUS ผ่าน HFCT</b><p style="font-size:15px;color:var(--mut);font-weight:300;margin-top:6px;line-height:1.55">เสนอเป็นแนวทางระดับสมาคมหัวใจล้มเหลวแห่งประเทศไทย</p></div></div>
+      <div class="card rev" style="--d:6;display:flex;gap:16px"><div class="nchip">4</div><div><b style="font-size:17.5px">ท่านคือกำลังสำคัญ</b><p style="font-size:15px;color:var(--mut);font-weight:300;margin-top:6px;line-height:1.55">เริ่มใช้งาน FoCUS ในระบบ Virtual-HF ได้ทันทีที่ รพ.ของท่าน</p></div></div>
+    </div>
+    <div class="rev" style="--d:7;margin-top:32px;display:flex;align-items:center;justify-content:space-between;background:var(--cyan-dim);border:1px solid rgba(53,224,200,.3);border-radius:12px;padding:22px 30px">
+      <div>
+        <div style="font-family:'Fraunces','Noto Serif Thai',serif;font-size:26px;font-weight:600;font-style:italic">ขอบคุณครับ</div>
+        <div class="mono" style="font-size:13px;color:var(--mut);letter-spacing:.14em;margin-top:8px">นพ.อนุชิต วงศ์เพ็ญ · รพ.อุดรธานี · เขตสุขภาพที่ 8</div>
+      </div>
+      <span class="tag hot" style="font-size:14px;padding:10px 20px">Q&A · ยินดีตอบทุกคำถาม</span>
+    </div>
+  </div>
+  <div class="chrome-bot"><span>VIRTUAL-HF · HEART FAILURE TELEMEDICINE NETWORK</span><span>10 / 10</span></div>
+</section>
+
+</div></div>
+
+<div class="nav">
+  <button id="prev">‹</button>
+  <div class="dots" id="dots"></div>
+  <button id="next">›</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];let cur=0;
+const dotsEl=document.getElementById('dots');
+slides.forEach((_,i)=>{const d=document.createElement('i');if(i===0)d.classList.add('on');d.onclick=()=>go(i);dotsEl.appendChild(d)});
+function go(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');
+  [...dotsEl.children].forEach((d,i)=>d.classList.toggle('on',i===cur));}
+document.getElementById('next').onclick=()=>go(cur+1);
+document.getElementById('prev').onclick=()=>go(cur-1);
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown')go(cur+1);
+  if(e.key==='ArrowLeft'||e.key==='PageUp')go(cur-1);
+  if(e.key==='Home')go(0);if(e.key==='End')go(slides.length-1);
+});
+function fit(){const d=document.getElementById('deck');const s=Math.min(innerWidth/1320,innerHeight/790);d.style.transform=`scale(${s})`;}
+addEventListener('resize',fit);fit();
+</script>
+</body>
+</html>
